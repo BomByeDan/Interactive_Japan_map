@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap"
+      rel="stylesheet">
+    
+<style>
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: "News Cycle", sans-serif;
+        color: #202a35;
+    }
+
+    .folium-map {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 66.666vw !important;
+        height: 100vh !important;
+        transition: width 0.3s ease;
+        z-index: 1;
+    }
+
+    #sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 33.333vw;
+        height: 100vh;
+        box-sizing: border-box;
+        overflow-y: auto;
+        padding: 24px;
+        background: #ffffff;
+        border-left: 1px solid #d7dee6;
+        z-index: 1000;
+        transition: width 0.3s ease;
+    }
+
+    body.expanded .folium-map {
+        width: 33.333vw !important;
+    }
+
+    body.expanded #sidebar {
+        width: 66.666vw;
+    }
+
+    h1 {
+        margin: 0 0 12px;
+        font-size: 25px;
+        line-height: 1.2;
+    }
+
+    h2 {
+        margin: 24px 0 10px;
+        font-size: 18px;
+    }
+
+    .intro, .placeholder, .entry-button small,
+    .media-section p {
+        color: #526171;
+        line-height: 1.5;
+    }
+
+    .entry-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .entry-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #d7dee6;
+        border-radius: 8px;
+        background: var(--category-bg, #f3f4f6);
+        cursor: pointer;
+    }
+
+    .entry-button:hover {
+        filter: brightness(0.96);
+        border-color: #145b73;
+    }
+
+    .entry-button strong,
+    .entry-button span,
+    .entry-button small {
+        margin-top: 5px;
+        display: block;
+    }
+
+    .entry-button span {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #526171;
+    }
+
+    .entry-button small {
+        margin-top: 6px;
+        font-size: 13px;
+    }
+
+    #back-button {
+        margin-bottom: 20px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .detail-date {
+        color: #526171;
+    }
+
+    .detail-abstract {
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .memo-section, .media-section {
+        margin-top: 25px;
+        padding-top: 13px;
+        border-top: 1px solid #d7dee6;
+    }
+
+    #detail-memo {
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    #media-link {
+        display: inline-block;
+        margin: 6px 0 20px;
+        color: #145b73;
+        font-weight: bold;
+    }
+
+    @media (max-width: 800px) {
+        .folium-map,
+        body.expanded .folium-map {
+            width: 50vw !important;
+        }
+
+        #sidebar,
+        body.expanded #sidebar {
+            width: 50vw;
+            padding: 16px;
+        }
+    }
+    .tier-group {
+        margin: 12px 0 18px;
+    }
+
+    .tier-heading {
+        margin: 0 0 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #eef2f5;
+        font-size: 15px;
+    }
+    .category-label {
+        display: block;
+        margin: 18px 0 6px;
+        font-weight: bold;
+    }
+
+    #category-filter {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d7dee6;
+        border-radius: 6px;
+        background: #fff;
+        font: inherit;
+    }
+
+    .sidebar-section {
+        margin-top: 30px;
+        border-top: 1px solid #d7dee6;
+        padding-top: 15px;
+    }
+
+    .sidebar-section > summary,
+    .tier-group > summary {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 6px 0;
+    }
+
+    .sidebar-section > summary {
+        font-size: 18px;
+    }
+
+    .tier-group {
+        margin: 8px 0;
+    }
+
+    .tier-group > .entry-list {
+        margin: 6px 0 12px;
+    }
+
+    .placeholder {
+        color: #526171;
+    }
+    h1, h2, h3,
+    .sidebar-section > summary,
+    .tier-group > summary {
+        font-family: "News Cycle", sans-serif;
+        font-weight: 700;
+    }
+    /* More space between the category selector and Journal entries */
+    #category-filter {
+        margin-bottom: 14px;
+    }
+
+    /* More space between section headings and the cards below them */
+    .sidebar-section > summary {
+        margin-bottom: 12px;
+    }
+
+    /* Keep space between Journal entries heading and its cards */
+    #category-entries {
+        margin-top: 12px;
+    }
+    .entry-button.highlight-card {
+        border: 3px solid #ff1f1f;
+    }
+    .leaflet-marker-icon.highlight-marker {
+        filter:
+            drop-shadow(0 0 2px #ff1f1f)
+            drop-shadow(0 0 3px #ff1f1f) !important;
+    }
+</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_801aaec25b361280f325f0ced0b899ee {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_801aaec25b361280f325f0ced0b899ee" ></div>
+        
+    
+    <aside id="sidebar" aria-label="Place information">
+        <section id="overview">
+            <h1>Places &amp; highlights</h1>
+            <p class="intro">Choose a category or select a place to read more.</p>
+
+            <label class="category-label" for="category-filter">Category</label>
+            <select id="category-filter"></select>
+
+            <h2>Journal entries</h2>
+            <div id="category-entries" class="entry-list"></div>
+
+            <details class="sidebar-section" open>
+                <summary>Highlights</summary>
+                <div id="highlight-entries" class="entry-list"></div>
+            </details>
+
+            <details class="sidebar-section" open>
+                <summary>Tier list</summary>
+                <div id="tier-groups"></div>
+            </details>
+        </section>
+
+        <section id="details" hidden>
+            <button id="back-button" type="button" onclick="window.showOverview()">
+                &larr; Back to places
+            </button>
+
+            <h1 id="detail-name"></h1>
+            <p class="detail-date"><strong>Date:</strong> <span id="detail-date"></span></p>
+            <p id="detail-abstract" class="detail-abstract"></p>
+
+            <div class="memo-section">
+                <h2>Full memo</h2>
+                <p id="detail-memo"></p>
+            </div>
+
+            <div class="media-section">
+                <h2>Associated media</h2>
+                <p>
+                    This sample entry links to its Google Drive folder.
+                    Individual photo/video previews can be added in a later step.
+                </p>
+                <a id="media-link"
+                   href="#"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Open media folder in Google Drive
+                </a>
+            </div>
+        </section>
+    </aside>
+    
+</body>
+<script>
+    
+    
+            var map_801aaec25b361280f325f0ced0b899ee = L.map(
+                "map_801aaec25b361280f325f0ced0b899ee",
+                {
+                    center: [49.950199999999995, 5.106133333333333],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_fb440758a0a219276645f21754784540 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_fb440758a0a219276645f21754784540.addTo(map_801aaec25b361280f325f0ced0b899ee);
+        
+    
+            var poly_line_a1297fa877ab7565445e0e9eff7477c7 = L.polyline(
+                [[49.6116, 6.1319], [49.6098, 6.1292]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_801aaec25b361280f325f0ced0b899ee);
+        
+    
+            poly_line_a1297fa877ab7565445e0e9eff7477c7.bindTooltip(
+                `<div>
+                     Old Town Walk
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_e3295517fd9f5f1a9881a999e02f1df4 = L.marker(
+                [49.6116, 6.1319],
+                {
+}
+            ).addTo(map_801aaec25b361280f325f0ced0b899ee);
+        
+    
+            var icon_eafd3b57b1aec3c9c9eac34594069853 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2c182d394423d29e1e22aee8c9dab9f7 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_31c59d1a12d0b42e5cfca71416ed5ece = $(`<div id="html_31c59d1a12d0b42e5cfca71416ed5ece" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_2c182d394423d29e1e22aee8c9dab9f7.setContent(html_31c59d1a12d0b42e5cfca71416ed5ece);
+            
+        
+
+        marker_e3295517fd9f5f1a9881a999e02f1df4.bindPopup(popup_2c182d394423d29e1e22aee8c9dab9f7)
+        ;
+
+        
+    
+    
+            marker_e3295517fd9f5f1a9881a999e02f1df4.bindTooltip(
+                `<div>
+                     Old Town Walk
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_e3295517fd9f5f1a9881a999e02f1df4.setIcon(icon_eafd3b57b1aec3c9c9eac34594069853);
+            
+    
+            var marker_45e9f96d4ad18cfe3bccd273af44b336 = L.marker(
+                [49.6098, 6.1292],
+                {
+}
+            ).addTo(map_801aaec25b361280f325f0ced0b899ee);
+        
+    
+            var icon_588bbe0b8f4c06336083c358da717364 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a50f711eb46495b7b96bebb33bd76ef5 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_b44ce2d2eda976cea3b151a181e95173 = $(`<div id="html_b44ce2d2eda976cea3b151a181e95173" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_a50f711eb46495b7b96bebb33bd76ef5.setContent(html_b44ce2d2eda976cea3b151a181e95173);
+            
+        
+
+        marker_45e9f96d4ad18cfe3bccd273af44b336.bindPopup(popup_a50f711eb46495b7b96bebb33bd76ef5)
+        ;
+
+        
+    
+    
+            marker_45e9f96d4ad18cfe3bccd273af44b336.bindTooltip(
+                `<div>
+                     Old Town Walk
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_45e9f96d4ad18cfe3bccd273af44b336.setIcon(icon_588bbe0b8f4c06336083c358da717364);
+            
+    
+            var marker_5a6cc907c893728681b386a1ead8b24d = L.marker(
+                [50.6292, 3.0573],
+                {
+}
+            ).addTo(map_801aaec25b361280f325f0ced0b899ee);
+        
+    
+            var icon_4c738981141b4d5b22e95619ecc297eb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "mountain-sun",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_123f5e71f038bbcf8ded3d96fd82c3fd = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_7247cf905e6825881d00061ca2f6d26f = $(`<div id="html_7247cf905e6825881d00061ca2f6d26f" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Sample Day Trip</h3>             <p><strong>Date:</strong> 2025-06-15</p>             <p>A short visit to another city with a few places of interest.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-002"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_123f5e71f038bbcf8ded3d96fd82c3fd.setContent(html_7247cf905e6825881d00061ca2f6d26f);
+            
+        
+
+        marker_5a6cc907c893728681b386a1ead8b24d.bindPopup(popup_123f5e71f038bbcf8ded3d96fd82c3fd)
+        ;
+
+        
+    
+    
+            marker_5a6cc907c893728681b386a1ead8b24d.bindTooltip(
+                `<div>
+                     Sample Day Trip
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5a6cc907c893728681b386a1ead8b24d.setIcon(icon_4c738981141b4d5b22e95619ecc297eb);
+            
+    
+    (function () {
+        const map = map_801aaec25b361280f325f0ced0b899ee;
+        const entries = [{"id": "entry-001", "name": "Old Town Walk", "date": "2025-06-01", "abstract": "A walk through the historic centre, with a few favourite stops.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_ID", "memo": "This is the longer journal entry for the Old Town Walk. It appears in the expanded panel. Later, we can add individual photo and video previews here.", "tier": "S", "highlight": true, "category": "City", "points": [{"latitude": 49.6116, "longitude": 6.1319}, {"latitude": 49.6098, "longitude": 6.1292}]}, {"id": "entry-002", "name": "Sample Day Trip", "date": "2025-06-15", "abstract": "A short visit to another city with a few places of interest.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_ANOTHER_FOLDER_ID", "memo": "This is a second sample memo. The expanded panel will show the full text and, in a later step, the associated media.", "tier": "A", "highlight": false, "category": "Hike", "points": [{"latitude": 50.6292, "longitude": 3.0573}]}];
+        const markerNamesByEntry = {"entry-001": ["marker_e3295517fd9f5f1a9881a999e02f1df4", "marker_45e9f96d4ad18cfe3bccd273af44b336"], "entry-002": ["marker_5a6cc907c893728681b386a1ead8b24d"]};
+        const highlightedEntryIds = ["entry-001"];
+
+        const entriesById = {};
+        for (const entry of entries) {
+            entriesById[entry.id] = entry;
+        }
+
+        map.whenReady(function () {
+            for (const entryId of highlightedEntryIds) {
+                const markerNames = markerNamesByEntry[entryId] || [];
+
+                for (const markerName of markerNames) {
+                    const marker = window[markerName];
+                    if (marker) {
+                        const markerElement = marker.getElement();
+                        if (markerElement) {
+                            markerElement.classList.add("highlight-marker");
+                            markerElement.style.setProperty(
+                                "filter",
+                                "drop-shadow(0 0 3px #ff1f1f) drop-shadow(0 0 6px #ff1f1f)",
+                                "important"
+                            );
+                        }
+                    }
+                }
+            }
+        });
+        function refreshMap(fitEntryId) {
+            window.setTimeout(function () {
+                map.invalidateSize();
+
+                if (fitEntryId && markerNamesByEntry[fitEntryId]) {
+                    const latLngs = [];
+
+                    for (const markerName of markerNamesByEntry[fitEntryId]) {
+                        const marker = window[markerName];
+                        if (marker) {
+                            latLngs.push(marker.getLatLng());
+                        }
+                    }
+
+                    if (latLngs.length === 1) {
+                        map.setView(latLngs[0], Math.max(map.getZoom(), 13));
+                    } else if (latLngs.length > 1) {
+                        map.fitBounds(L.latLngBounds(latLngs), {
+                            padding: [35, 35],
+                            maxZoom: 14
+                        });
+                    }
+                }
+            }, 350);
+        }
+
+        function makeEntryButton(entry) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "entry-button";
+            if (entry.highlight === true) {
+                button.classList.add("highlight-card");
+            }
+            const categoryCardColors = {
+                "Hike": "#e5f3e8",
+                "City": "#e6eef9",
+                "Food": "#fff0df"
+            };
+
+            button.style.setProperty(
+                "--category-bg",
+                categoryCardColors[entry.category] || "#f3f4f6"
+            );
+            button.dataset.entryId = entry.id;
+
+            const name = document.createElement("strong");
+            name.textContent = entry.name || "Untitled place";
+
+            const date = document.createElement("span");
+            date.textContent = entry.date || "";
+
+            const abstract = document.createElement("small");
+            abstract.textContent = entry.abstract || "";
+
+            button.append(name, date, abstract);
+            return button;
+        }
+
+        function fillEntryList(container, matchingEntries, emptyMessage) {
+            container.replaceChildren();
+
+            if (matchingEntries.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = emptyMessage;
+                container.appendChild(message);
+                return;
+            }
+
+            for (const entry of matchingEntries) {
+                container.appendChild(makeEntryButton(entry));
+            }
+        }
+
+        function renderSidebar() {
+            const categoryFilter = document.getElementById("category-filter");
+            const selectedCategory = categoryFilter.value;
+
+            const categoryEntries = selectedCategory === "__all__"
+                ? entries
+                : entries.filter(entry =>
+                    (entry.category || "Uncategorized") === selectedCategory
+                );
+
+            fillEntryList(
+                document.getElementById("category-entries"),
+                categoryEntries,
+                "No entries in this category."
+            );
+
+            // Highlights stay independent of the selected category.
+            const highlightedEntries = entries.filter(
+                entry => entry.highlight === true
+            );
+
+            fillEntryList(
+                document.getElementById("highlight-entries"),
+                highlightedEntries,
+                "No highlighted entries yet."
+            );
+
+            // Tier groups follow the selected category.
+            const tierContainer = document.getElementById("tier-groups");
+            tierContainer.replaceChildren();
+
+            const entriesWithTiers = categoryEntries.filter(
+                entry => entry.tier && entry.tier.trim() !== ""
+            );
+
+            if (entriesWithTiers.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = "No tiered entries in this category.";
+                tierContainer.appendChild(message);
+                return;
+            }
+
+            const preferredOrder = ["S", "A", "B", "C", "D"];
+            const tierNames = [...new Set(
+                entriesWithTiers.map(entry => entry.tier.trim())
+            )].sort((a, b) => {
+                const aIndex = preferredOrder.indexOf(a);
+                const bIndex = preferredOrder.indexOf(b);
+
+                if (aIndex !== -1 || bIndex !== -1) {
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                }
+
+                return a.localeCompare(b);
+            });
+
+            for (const tier of tierNames) {
+                const groupEntries = entriesWithTiers.filter(
+                    entry => entry.tier.trim() === tier
+                );
+
+                const group = document.createElement("details");
+                group.className = "tier-group";
+
+                const heading = document.createElement("summary");
+                heading.textContent = `Tier ${tier} (${groupEntries.length})`;
+
+                const list = document.createElement("div");
+                list.className = "entry-list";
+
+                for (const entry of groupEntries) {
+                    list.appendChild(makeEntryButton(entry));
+                }
+
+                group.append(heading, list);
+                tierContainer.appendChild(group);
+            }
+        }
+
+        window.showEntry = function (entryId) {
+            const entry = entriesById[entryId];
+            if (!entry) {
+                return;
+            }
+
+            document.body.classList.add("expanded");
+            document.getElementById("overview").hidden = true;
+            document.getElementById("details").hidden = false;
+
+            document.getElementById("detail-name").textContent = entry.name || "";
+            document.getElementById("detail-date").textContent = entry.date || "";
+            document.getElementById("detail-abstract").textContent =
+                entry.abstract || "";
+            document.getElementById("detail-memo").textContent = entry.memo || "";
+
+            const mediaLink = document.getElementById("media-link");
+            mediaLink.href = entry.media || "#";
+            mediaLink.textContent = "Open media folder in Google Drive";
+
+            refreshMap(entryId);
+        };
+
+        window.showOverview = function () {
+            document.body.classList.remove("expanded");
+            document.getElementById("details").hidden = true;
+            document.getElementById("overview").hidden = false;
+
+            refreshMap(null);
+        };
+
+        const categoryFilter = document.getElementById("category-filter");
+        const categories = [...new Set(
+            entries.map(entry => entry.category || "Uncategorized")
+        )].sort((a, b) => a.localeCompare(b));
+
+        const allOption = document.createElement("option");
+        allOption.value = "__all__";
+        allOption.textContent = "All categories";
+        categoryFilter.appendChild(allOption);
+
+        for (const category of categories) {
+            const option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        }
+
+        categoryFilter.addEventListener("change", renderSidebar);
+
+        // One handler supports sidebar entries and marker pop-up buttons.
+        document.addEventListener("click", function (event) {
+            const target = event.target;
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            const button = target.closest("[data-entry-id]");
+            if (button) {
+                window.showEntry(button.dataset.entryId);
+            }
+        });
+
+        // Populate the lists when the page loads.
+        renderSidebar();
+    })();
+    
+</script>
+</html>
