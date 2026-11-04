@@ -148,6 +148,56 @@
             padding: 16px;
         }
     }
+    .tier-group {
+        margin: 12px 0 18px;
+    }
+
+    .tier-heading {
+        margin: 0 0 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #eef2f5;
+        font-size: 15px;
+    }
+    .category-label {
+        display: block;
+        margin: 18px 0 6px;
+        font-weight: bold;
+    }
+
+    #category-filter {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d7dee6;
+        border-radius: 6px;
+        background: #fff;
+        font: inherit;
+    }
+
+    .sidebar-section {
+        margin-top: 22px;
+        border-top: 1px solid #d7dee6;
+        padding-top: 12px;
+    }
+
+    .sidebar-section > summary,
+    .tier-group > summary {
+        cursor: pointer;
+        font-weight: bold;
+        padding: 6px 0;
+    }
+
+    .tier-group {
+        margin: 8px 0;
+    }
+
+    .tier-group > .entry-list {
+        margin: 6px 0 12px;
+    }
+
+    .placeholder {
+        color: #526171;
+    }
 </style>
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -163,7 +213,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_49abc758cbee3fbf85aedc95c6a6b19c {
+                #map_402e0a79a4a4119da47a4e2e7f67dc18 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -200,42 +250,29 @@
 <body>
     
     
-            <div class="folium-map" id="map_49abc758cbee3fbf85aedc95c6a6b19c" ></div>
+            <div class="folium-map" id="map_402e0a79a4a4119da47a4e2e7f67dc18" ></div>
         
     
     <aside id="sidebar" aria-label="Place information">
         <section id="overview">
-            <h1>Places & highlights</h1>
-            <p class="intro">
-                Select a marker or a place below to read more.
-            </p>
+            <h1>Places &amp; highlights</h1>
+            <p class="intro">Choose a category or select a place to read more.</p>
+
+            <label class="category-label" for="category-filter">Category</label>
+            <select id="category-filter"></select>
 
             <h2>Journal entries</h2>
-            <div class="entry-list">
-                
-        <button class="entry-button"
-                type="button"
-                data-entry-id="entry-001">
-            <strong>Old Town Walk</strong>
-            <span>2025-06-01</span>
-            <small>A walk through the historic centre, with a few favourite stops.</small>
-        </button>
-        
+            <div id="category-entries" class="entry-list"></div>
 
-        <button class="entry-button"
-                type="button"
-                data-entry-id="entry-002">
-            <strong>Sample Day Trip</strong>
-            <span>2025-06-15</span>
-            <small>A short visit to another city with a few places of interest.</small>
-        </button>
-        
-            </div>
+            <details class="sidebar-section" open>
+                <summary>Highlights</summary>
+                <div id="highlight-entries" class="entry-list"></div>
+            </details>
 
-            <h2>Highlights / tier lists</h2>
-            <p class="placeholder">
-                We can add recommendation and tier-list sections here next.
-            </p>
+            <details class="sidebar-section" open>
+                <summary>Tier list</summary>
+                <div id="tier-groups"></div>
+            </details>
         </section>
 
         <section id="details" hidden>
@@ -272,8 +309,8 @@
 <script>
     
     
-            var map_49abc758cbee3fbf85aedc95c6a6b19c = L.map(
-                "map_49abc758cbee3fbf85aedc95c6a6b19c",
+            var map_402e0a79a4a4119da47a4e2e7f67dc18 = L.map(
+                "map_402e0a79a4a4119da47a4e2e7f67dc18",
                 {
                     center: [49.950199999999995, 5.106133333333333],
                     crs: L.CRS.EPSG3857,
@@ -290,7 +327,7 @@
 
         
     
-            var tile_layer_624dcddd7d4ddbf0aa5b88b9c13b9a0d = L.tileLayer(
+            var tile_layer_5a5dd07a4152146de57d60fcb6f50e6d = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -307,34 +344,45 @@
             );
         
     
-            tile_layer_624dcddd7d4ddbf0aa5b88b9c13b9a0d.addTo(map_49abc758cbee3fbf85aedc95c6a6b19c);
+            tile_layer_5a5dd07a4152146de57d60fcb6f50e6d.addTo(map_402e0a79a4a4119da47a4e2e7f67dc18);
         
     
-            var marker_b7bec63b77c59001154a093ceafa58f7 = L.marker(
+            var marker_3b9e3ec8083b2b16fc55bca0d6f2e48d = L.marker(
                 [49.6116, 6.1319],
                 {
 }
-            ).addTo(map_49abc758cbee3fbf85aedc95c6a6b19c);
+            ).addTo(map_402e0a79a4a4119da47a4e2e7f67dc18);
         
     
-        var popup_0ca9a3637608661bb3e68177a425d61e = L.popup({
+            var icon_004638512e6a48c958786fb70dd5f4c1 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "camera",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5f6172bb0143b4eaa3424258c4d3743c = L.popup({
   "maxWidth": 320,
 });
 
         
             
-                var html_05a84ca00d7730c015b8177d484a8a71 = $(`<div id="html_05a84ca00d7730c015b8177d484a8a71" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
-                popup_0ca9a3637608661bb3e68177a425d61e.setContent(html_05a84ca00d7730c015b8177d484a8a71);
+                var html_7b4d6f346675c770d1b50c95e80bc2de = $(`<div id="html_7b4d6f346675c770d1b50c95e80bc2de" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_5f6172bb0143b4eaa3424258c4d3743c.setContent(html_7b4d6f346675c770d1b50c95e80bc2de);
             
         
 
-        marker_b7bec63b77c59001154a093ceafa58f7.bindPopup(popup_0ca9a3637608661bb3e68177a425d61e)
+        marker_3b9e3ec8083b2b16fc55bca0d6f2e48d.bindPopup(popup_5f6172bb0143b4eaa3424258c4d3743c)
         ;
 
         
     
     
-            marker_b7bec63b77c59001154a093ceafa58f7.bindTooltip(
+            marker_3b9e3ec8083b2b16fc55bca0d6f2e48d.bindTooltip(
                 `<div>
                      Old Town Walk
                  </div>`,
@@ -344,31 +392,45 @@
             );
         
     
-            var marker_ff0cb0550fb8c5a849a2f7e9a4618516 = L.marker(
+                marker_3b9e3ec8083b2b16fc55bca0d6f2e48d.setIcon(icon_004638512e6a48c958786fb70dd5f4c1);
+            
+    
+            var marker_73cfc6c8e76f1e8deafc1b60986f95f7 = L.marker(
                 [49.6098, 6.1292],
                 {
 }
-            ).addTo(map_49abc758cbee3fbf85aedc95c6a6b19c);
+            ).addTo(map_402e0a79a4a4119da47a4e2e7f67dc18);
         
     
-        var popup_4a7f7acd67450a71fd1eb6bbcf310620 = L.popup({
+            var icon_9518babc287827ffb2d5b1c0d6085440 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "camera",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_15d73a988d29bdfc11adea483ee76720 = L.popup({
   "maxWidth": 320,
 });
 
         
             
-                var html_30404e2f4a1945f7bb76bf092a24b3e1 = $(`<div id="html_30404e2f4a1945f7bb76bf092a24b3e1" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
-                popup_4a7f7acd67450a71fd1eb6bbcf310620.setContent(html_30404e2f4a1945f7bb76bf092a24b3e1);
+                var html_856e9695551d0c7323059dd9505203ea = $(`<div id="html_856e9695551d0c7323059dd9505203ea" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Old Town Walk</h3>             <p><strong>Date:</strong> 2025-06-01</p>             <p>A walk through the historic centre, with a few favourite stops.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-001"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_15d73a988d29bdfc11adea483ee76720.setContent(html_856e9695551d0c7323059dd9505203ea);
             
         
 
-        marker_ff0cb0550fb8c5a849a2f7e9a4618516.bindPopup(popup_4a7f7acd67450a71fd1eb6bbcf310620)
+        marker_73cfc6c8e76f1e8deafc1b60986f95f7.bindPopup(popup_15d73a988d29bdfc11adea483ee76720)
         ;
 
         
     
     
-            marker_ff0cb0550fb8c5a849a2f7e9a4618516.bindTooltip(
+            marker_73cfc6c8e76f1e8deafc1b60986f95f7.bindTooltip(
                 `<div>
                      Old Town Walk
                  </div>`,
@@ -378,31 +440,45 @@
             );
         
     
-            var marker_a05537fbbf8ec2f462bfd417958266f5 = L.marker(
+                marker_73cfc6c8e76f1e8deafc1b60986f95f7.setIcon(icon_9518babc287827ffb2d5b1c0d6085440);
+            
+    
+            var marker_44335afc2979212e5a0fdb906079c3dd = L.marker(
                 [50.6292, 3.0573],
                 {
 }
-            ).addTo(map_49abc758cbee3fbf85aedc95c6a6b19c);
+            ).addTo(map_402e0a79a4a4119da47a4e2e7f67dc18);
         
     
-        var popup_7ca03b9bca779986793f7fdef713ff85 = L.popup({
+            var icon_499d4430d65f027ed3c95e6fe65dfe0a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "camera",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ee68ba83b7e3d76866ab65d3287436d6 = L.popup({
   "maxWidth": 320,
 });
 
         
             
-                var html_ec0d9ce6aadbcd2098cf0c30525e400c = $(`<div id="html_ec0d9ce6aadbcd2098cf0c30525e400c" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Sample Day Trip</h3>             <p><strong>Date:</strong> 2025-06-15</p>             <p>A short visit to another city with a few places of interest.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-002"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
-                popup_7ca03b9bca779986793f7fdef713ff85.setContent(html_ec0d9ce6aadbcd2098cf0c30525e400c);
+                var html_d6e353b3a297b5aaedd935e4cd11b519 = $(`<div id="html_d6e353b3a297b5aaedd935e4cd11b519" style="width: 100.0%; height: 100.0%;">         <div style="width: 250px; font-family: Arial, sans-serif;">             <h3>Sample Day Trip</h3>             <p><strong>Date:</strong> 2025-06-15</p>             <p>A short visit to another city with a few places of interest.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="entry-002"                 style="padding: 7px 12px; cursor: pointer;"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_ee68ba83b7e3d76866ab65d3287436d6.setContent(html_d6e353b3a297b5aaedd935e4cd11b519);
             
         
 
-        marker_a05537fbbf8ec2f462bfd417958266f5.bindPopup(popup_7ca03b9bca779986793f7fdef713ff85)
+        marker_44335afc2979212e5a0fdb906079c3dd.bindPopup(popup_ee68ba83b7e3d76866ab65d3287436d6)
         ;
 
         
     
     
-            marker_a05537fbbf8ec2f462bfd417958266f5.bindTooltip(
+            marker_44335afc2979212e5a0fdb906079c3dd.bindTooltip(
                 `<div>
                      Sample Day Trip
                  </div>`,
@@ -412,10 +488,13 @@
             );
         
     
+                marker_44335afc2979212e5a0fdb906079c3dd.setIcon(icon_499d4430d65f027ed3c95e6fe65dfe0a);
+            
+    
     (function () {
-        const map = map_49abc758cbee3fbf85aedc95c6a6b19c;
-        const entries = [{"id": "entry-001", "name": "Old Town Walk", "date": "2025-06-01", "abstract": "A walk through the historic centre, with a few favourite stops.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_ID", "memo": "This is the longer journal entry for the Old Town Walk. It appears in the expanded panel. Later, we can add individual photo and video previews here.", "points": [{"latitude": 49.6116, "longitude": 6.1319}, {"latitude": 49.6098, "longitude": 6.1292}]}, {"id": "entry-002", "name": "Sample Day Trip", "date": "2025-06-15", "abstract": "A short visit to another city with a few places of interest.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_ANOTHER_FOLDER_ID", "memo": "This is a second sample memo. The expanded panel will show the full text and, in a later step, the associated media.", "points": [{"latitude": 50.6292, "longitude": 3.0573}]}];
-        const markerNamesByEntry = {"entry-001": ["marker_b7bec63b77c59001154a093ceafa58f7", "marker_ff0cb0550fb8c5a849a2f7e9a4618516"], "entry-002": ["marker_a05537fbbf8ec2f462bfd417958266f5"]};
+        const map = map_402e0a79a4a4119da47a4e2e7f67dc18;
+        const entries = [{"id": "entry-001", "name": "Old Town Walk", "date": "2025-06-01", "abstract": "A walk through the historic centre, with a few favourite stops.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_YOUR_FOLDER_ID", "memo": "This is the longer journal entry for the Old Town Walk. It appears in the expanded panel. Later, we can add individual photo and video previews here.", "tier": "S", "highlight": true, "category": "City", "points": [{"latitude": 49.6116, "longitude": 6.1319}, {"latitude": 49.6098, "longitude": 6.1292}]}, {"id": "entry-002", "name": "Sample Day Trip", "date": "2025-06-15", "abstract": "A short visit to another city with a few places of interest.", "media": "https://drive.google.com/drive/folders/REPLACE_WITH_ANOTHER_FOLDER_ID", "memo": "This is a second sample memo. The expanded panel will show the full text and, in a later step, the associated media.", "tier": "A", "highlight": false, "category": "Hike", "points": [{"latitude": 50.6292, "longitude": 3.0573}]}];
+        const markerNamesByEntry = {"entry-001": ["marker_3b9e3ec8083b2b16fc55bca0d6f2e48d", "marker_73cfc6c8e76f1e8deafc1b60986f95f7"], "entry-002": ["marker_44335afc2979212e5a0fdb906079c3dd"]};
 
         const entriesById = {};
         for (const entry of entries) {
@@ -448,6 +527,123 @@
             }, 350);
         }
 
+        function makeEntryButton(entry) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "entry-button";
+            button.dataset.entryId = entry.id;
+
+            const name = document.createElement("strong");
+            name.textContent = entry.name || "Untitled place";
+
+            const date = document.createElement("span");
+            date.textContent = entry.date || "";
+
+            const abstract = document.createElement("small");
+            abstract.textContent = entry.abstract || "";
+
+            button.append(name, date, abstract);
+            return button;
+        }
+
+        function fillEntryList(container, matchingEntries, emptyMessage) {
+            container.replaceChildren();
+
+            if (matchingEntries.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = emptyMessage;
+                container.appendChild(message);
+                return;
+            }
+
+            for (const entry of matchingEntries) {
+                container.appendChild(makeEntryButton(entry));
+            }
+        }
+
+        function renderSidebar() {
+            const categoryFilter = document.getElementById("category-filter");
+            const selectedCategory = categoryFilter.value;
+
+            const categoryEntries = selectedCategory === "__all__"
+                ? entries
+                : entries.filter(entry =>
+                    (entry.category || "Uncategorized") === selectedCategory
+                );
+
+            fillEntryList(
+                document.getElementById("category-entries"),
+                categoryEntries,
+                "No entries in this category."
+            );
+
+            // Highlights stay independent of the selected category.
+            const highlightedEntries = entries.filter(
+                entry => entry.highlight === true
+            );
+
+            fillEntryList(
+                document.getElementById("highlight-entries"),
+                highlightedEntries,
+                "No highlighted entries yet."
+            );
+
+            // Tier groups follow the selected category.
+            const tierContainer = document.getElementById("tier-groups");
+            tierContainer.replaceChildren();
+
+            const entriesWithTiers = categoryEntries.filter(
+                entry => entry.tier && entry.tier.trim() !== ""
+            );
+
+            if (entriesWithTiers.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = "No tiered entries in this category.";
+                tierContainer.appendChild(message);
+                return;
+            }
+
+            const preferredOrder = ["S", "A", "B", "C", "D"];
+            const tierNames = [...new Set(
+                entriesWithTiers.map(entry => entry.tier.trim())
+            )].sort((a, b) => {
+                const aIndex = preferredOrder.indexOf(a);
+                const bIndex = preferredOrder.indexOf(b);
+
+                if (aIndex !== -1 || bIndex !== -1) {
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                }
+
+                return a.localeCompare(b);
+            });
+
+            for (const tier of tierNames) {
+                const groupEntries = entriesWithTiers.filter(
+                    entry => entry.tier.trim() === tier
+                );
+
+                const group = document.createElement("details");
+                group.className = "tier-group";
+
+                const heading = document.createElement("summary");
+                heading.textContent = `Tier ${tier} (${groupEntries.length})`;
+
+                const list = document.createElement("div");
+                list.className = "entry-list";
+
+                for (const entry of groupEntries) {
+                    list.appendChild(makeEntryButton(entry));
+                }
+
+                group.append(heading, list);
+                tierContainer.appendChild(group);
+            }
+        }
+
         window.showEntry = function (entryId) {
             const entry = entriesById[entryId];
             if (!entry) {
@@ -458,13 +654,14 @@
             document.getElementById("overview").hidden = true;
             document.getElementById("details").hidden = false;
 
-            document.getElementById("detail-name").textContent = entry.name;
-            document.getElementById("detail-date").textContent = entry.date;
-            document.getElementById("detail-abstract").textContent = entry.abstract;
-            document.getElementById("detail-memo").textContent = entry.memo;
+            document.getElementById("detail-name").textContent = entry.name || "";
+            document.getElementById("detail-date").textContent = entry.date || "";
+            document.getElementById("detail-abstract").textContent =
+                entry.abstract || "";
+            document.getElementById("detail-memo").textContent = entry.memo || "";
 
             const mediaLink = document.getElementById("media-link");
-            mediaLink.href = entry.media;
+            mediaLink.href = entry.media || "#";
             mediaLink.textContent = "Open media folder in Google Drive";
 
             refreshMap(entryId);
@@ -478,14 +675,40 @@
             refreshMap(null);
         };
 
-        // Register once when the page loads. This also handles marker pop-ups
-        // that Leaflet adds to the page after the initial load.
+        const categoryFilter = document.getElementById("category-filter");
+        const categories = [...new Set(
+            entries.map(entry => entry.category || "Uncategorized")
+        )].sort((a, b) => a.localeCompare(b));
+
+        const allOption = document.createElement("option");
+        allOption.value = "__all__";
+        allOption.textContent = "All categories";
+        categoryFilter.appendChild(allOption);
+
+        for (const category of categories) {
+            const option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        }
+
+        categoryFilter.addEventListener("change", renderSidebar);
+
+        // One handler supports sidebar entries and marker pop-up buttons.
         document.addEventListener("click", function (event) {
-            const button = event.target.closest("[data-entry-id]");
+            const target = event.target;
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            const button = target.closest("[data-entry-id]");
             if (button) {
                 window.showEntry(button.dataset.entryId);
             }
         });
+
+        // Populate the lists when the page loads.
+        renderSidebar();
     })();
     
 </script>
