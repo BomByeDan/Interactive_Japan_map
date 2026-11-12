@@ -1,0 +1,3071 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap"
+      rel="stylesheet">
+    
+<style>
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: "News Cycle", sans-serif;
+        color: #202a35;
+    }
+
+    .folium-map {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 66.666vw !important;
+        height: 100vh !important;
+        transition: width 0.3s ease;
+        z-index: 1;
+    }
+
+    #sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 33.333vw;
+        height: 100vh;
+        box-sizing: border-box;
+        overflow-y: auto;
+        padding: 24px;
+        background-color: #fbfaf7;
+        background-image: radial-gradient(
+            circle,
+            rgba(20, 91, 115, 0.07) 1px,
+            transparent 1px
+        );
+        background-size: 18px 18px;
+        border-left: 1px solid #d7dee6;
+        z-index: 1000;
+        transition: width 0.3s ease;
+    }
+
+    body.expanded .folium-map {
+        width: 33.333vw !important;
+    }
+
+    body.expanded #sidebar {
+        width: 66.666vw;
+    }
+
+    h1 {
+        margin: 0 0 12px;
+        font-size: 25px;
+        line-height: 1.2;
+    }
+
+    h2 {
+        margin: 24px 0 10px;
+        font-size: 18px;
+    }
+
+    .intro, .placeholder, .entry-button small,
+    .media-section p {
+        color: #526171;
+        line-height: 1.5;
+    }
+
+    .entry-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .entry-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #d7dee6;
+        border-radius: 8px;
+        background: var(--category-bg, #f3f4f6);
+        cursor: pointer;
+    }
+
+    .entry-button:hover {
+        filter: brightness(0.96);
+        border-color: #145b73;
+    }
+
+    .entry-button strong,
+    .entry-button span,
+    .entry-button small {
+        margin-top: 5px;
+        display: block;
+    }
+
+    .entry-button span {
+        margin-top: 4px;
+        font-size: 13px;
+        color: #526171;
+    }
+
+    .entry-button small {
+        margin-top: 6px;
+        font-size: 13px;
+    }
+
+    #back-button {
+        margin-bottom: 20px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .detail-date {
+        color: #526171;
+    }
+
+    .detail-abstract {
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .memo-section,
+    .media-section {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid #e1e6e9;
+        border-radius: 10px;
+        padding: 16px;
+    }
+
+    #detail-memo {
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    #media-link {
+        display: inline-block;
+        margin: 6px 0 20px;
+        color: #145b73;
+        font-weight: bold;
+    }
+
+    @media (max-width: 800px) {
+        .folium-map,
+        body.expanded .folium-map {
+            width: 50vw !important;
+        }
+
+        #sidebar,
+        body.expanded #sidebar {
+            width: 50vw;
+            padding: 16px;
+        }
+    }
+    .tier-group {
+        margin: 12px 0 18px;
+    }
+
+    .tier-heading {
+        margin: 0 0 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #eef2f5;
+        font-size: 15px;
+    }
+    .category-label {
+        display: block;
+        margin: 18px 0 6px;
+        font-weight: bold;
+    }
+
+    #category-filter {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d7dee6;
+        border-radius: 6px;
+        background: #fff;
+        font: inherit;
+    }
+
+    .sidebar-section {
+        margin-top: 30px;
+        border-top: 1px solid #d7dee6;
+        padding-top: 15px;
+    }
+
+    .sidebar-section > summary,
+    .tier-group > summary {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 6px 0;
+    }
+
+    .sidebar-section > summary {
+        font-size: 18px;
+    }
+
+    .tier-group {
+        margin: 8px 0;
+    }
+
+    .tier-group > .entry-list {
+        margin: 6px 0 12px;
+    }
+
+    .placeholder {
+        color: #526171;
+    }
+    h1, h2, h3,
+    .sidebar-section > summary,
+    .tier-group > summary {
+        font-family: "News Cycle", sans-serif;
+        font-weight: 700;
+    }
+    /* More space between the category selector and Journal entries */
+    #category-filter {
+        margin-bottom: 14px;
+    }
+
+    /* More space between section headings and the cards below them */
+    .sidebar-section > summary {
+        margin-bottom: 12px;
+    }
+
+    /* Keep space between Journal entries heading and its cards */
+    #category-entries {
+        margin-top: 12px;
+    }
+    .entry-button.highlight-card {
+        border: 3px solid #ff1f1f;
+    }
+    .leaflet-marker-icon.highlight-marker {
+        filter:
+            drop-shadow(0 0 2px #ff1f1f)
+            drop-shadow(0 0 3px #ff1f1f) !important;
+    }
+    #back-button,
+    .expand-entry {
+        appearance: none;
+        border: 1px solid #145b73;
+        border-radius: 8px;
+        background: #145b73;
+        color: #fff;
+        padding: 9px 14px;
+        font: inherit;
+        font-weight: 700;
+        line-height: 1.2;
+        cursor: pointer;
+        transition: background-color 0.15s ease,
+                    border-color 0.15s ease,
+                    transform 0.15s ease;
+    }
+
+    #back-button:hover,
+    .expand-entry:hover {
+        background: #0e4659;
+        border-color: #0e4659;
+    }
+
+    #back-button:active,
+    .expand-entry:active {
+        transform: translateY(1px);
+    }
+
+    #back-button:focus-visible,
+    .expand-entry:focus-visible {
+        outline: 3px solid #8ecad8;
+        outline-offset: 2px;
+    }
+    }
+    .leaflet-popup-content {
+        margin: 0 !important;
+    }
+
+    .leaflet-popup-content-wrapper {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .journal-popup {
+        width: 250px;
+        box-sizing: border-box;
+        padding: 12px;
+        border-radius: 8px;
+        color: #202a35;
+        background-color: var(--popup-bg, #f3f4f6);
+        background-image: radial-gradient(
+            circle,
+            rgba(20, 91, 115, 0.07) 1px,
+            transparent 1px
+        );
+        background-size: 16px 16px;
+    }
+    .media-viewer {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) 42px;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .media-stage {
+        height: min(42vh, 460px);
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 1px solid #d7dee6;
+        border-radius: 10px;
+        background: #eef2f5;
+        touch-action: pan-y;
+    }
+
+    .media-content {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #202a35;
+    }
+
+    .media-placeholder {
+        padding: 24px;
+        color: #526171;
+        text-align: center;
+    }
+
+    .media-arrow {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #d7dee6;
+        border-radius: 50%;
+        background: #fff;
+        color: #145b73;
+        font: inherit;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .media-arrow:hover:not(:disabled) {
+        background: #eef6f8;
+    }
+
+    .media-arrow:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .media-caption-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 8px 2px;
+        color: #526171;
+        font-size: 14px;
+    }
+    .media-frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #202a35;}
+</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_25f48a118c4e783bde6a6fdee2dcec96 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_25f48a118c4e783bde6a6fdee2dcec96" ></div>
+        
+    
+    <aside id="sidebar" aria-label="Place information">
+        <section id="overview">
+            <h1>Places &amp; highlights</h1>
+            <p class="intro">Choose a category or select a place to read more.</p>
+
+            <label class="category-label" for="category-filter">Category</label>
+            <select id="category-filter"></select>
+
+            <h2>Journal entries</h2>
+            <div id="category-entries" class="entry-list"></div>
+
+            <details class="sidebar-section" open>
+                <summary>Highlights</summary>
+                <div id="highlight-entries" class="entry-list"></div>
+            </details>
+
+            <details class="sidebar-section" open>
+                <summary>Tier list</summary>
+                <div id="tier-groups"></div>
+            </details>
+        </section>
+
+        <section id="details" hidden>
+            <button id="back-button" type="button" onclick="window.showOverview()">
+                &larr; Back to places
+            </button>
+
+            <h1 id="detail-name"></h1>
+            <p class="detail-date"><strong>Date:</strong> <span id="detail-date"></span></p>
+            <p id="detail-abstract" class="detail-abstract"></p>
+
+            <div class="memo-section">
+                <h2>Full memo</h2>
+                <p id="detail-memo"></p>
+            </div>
+
+            <div class="media-section">
+                <h2>Associated media</h2>
+
+                <div class="media-viewer">
+                    <button id="media-prev" class="media-arrow"
+                            type="button" aria-label="Previous media item">
+                        &#8592;
+                    </button>
+
+                    <div id="media-stage" class="media-stage"
+                         aria-live="polite"></div>
+
+                    <button id="media-next" class="media-arrow"
+                            type="button" aria-label="Next media item">
+                        &#8594;
+                    </button>
+                </div>
+
+                <div class="media-caption-row">
+                    <span id="media-caption"></span>
+                    <span id="media-counter"></span>
+                </div>
+
+                <a id="media-link"
+                   href="#"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Open media folder in Google Drive
+                </a>
+            </div>
+        </section>
+    </aside>
+    
+</body>
+<script>
+    
+    
+            var map_25f48a118c4e783bde6a6fdee2dcec96 = L.map(
+                "map_25f48a118c4e783bde6a6fdee2dcec96",
+                {
+                    center: [36.30706740371136, 131.27623859062706],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_53508b39e671fbcde968b3590aca4beb = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_53508b39e671fbcde968b3590aca4beb.addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var poly_line_9f2b9908af49d7904ef91fb7454793a5 = L.polyline(
+                [[49.629157, 6.212543], [60.318464, 24.968599], [35.549912, 139.778787], [35.711381, 139.763187]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_9f2b9908af49d7904ef91fb7454793a5.bindTooltip(
+                `<div>
+                     Travel and first exploration
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_5ee0cf18edfbe3faa432f173bd574ed9 = L.marker(
+                [49.629157, 6.212543],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_e4532f4c33c93c0f188b68aa2050ed38 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ef4b30025c593f5da9307500bb5b5dce = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_baf7efde5b7d868986e60d3c0441319f = $(`<div id="html_baf7efde5b7d868986e60d3c0441319f" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Travel and first exploration</h3>             <p><strong>Date:</strong> 01/04/2026</p>             <p>The journey and first impressions</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E001"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 4             </p>         </div>         </div>`)[0];
+                popup_ef4b30025c593f5da9307500bb5b5dce.setContent(html_baf7efde5b7d868986e60d3c0441319f);
+            
+        
+
+        marker_5ee0cf18edfbe3faa432f173bd574ed9.bindPopup(popup_ef4b30025c593f5da9307500bb5b5dce)
+        ;
+
+        
+    
+    
+            marker_5ee0cf18edfbe3faa432f173bd574ed9.bindTooltip(
+                `<div>
+                     Travel and first exploration
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5ee0cf18edfbe3faa432f173bd574ed9.setIcon(icon_e4532f4c33c93c0f188b68aa2050ed38);
+            
+    
+            var marker_b5e10859ab8cf403ee33336ccdd8b1f5 = L.marker(
+                [60.318464, 24.968599],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_48a8820d72e61c7bd37a8f163547b7d8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c6cd7ac9320097c159fe0978c6093723 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_22f440ebb339ca0504259c8fa7006e1a = $(`<div id="html_22f440ebb339ca0504259c8fa7006e1a" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Travel and first exploration</h3>             <p><strong>Date:</strong> 01/04/2026</p>             <p>The journey and first impressions</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E001"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 4             </p>         </div>         </div>`)[0];
+                popup_c6cd7ac9320097c159fe0978c6093723.setContent(html_22f440ebb339ca0504259c8fa7006e1a);
+            
+        
+
+        marker_b5e10859ab8cf403ee33336ccdd8b1f5.bindPopup(popup_c6cd7ac9320097c159fe0978c6093723)
+        ;
+
+        
+    
+    
+            marker_b5e10859ab8cf403ee33336ccdd8b1f5.bindTooltip(
+                `<div>
+                     Travel and first exploration
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b5e10859ab8cf403ee33336ccdd8b1f5.setIcon(icon_48a8820d72e61c7bd37a8f163547b7d8);
+            
+    
+            var marker_8d7126be2ebcea2e35ee867f62afa1a2 = L.marker(
+                [35.549912, 139.778787],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_5f5b40290451d1ee34bc31e6f47772b4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ba7aa46310f60b5a459765ec29e2e502 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_dcdbaa0ac01a54efa3f57c75fa8fb6f6 = $(`<div id="html_dcdbaa0ac01a54efa3f57c75fa8fb6f6" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Travel and first exploration</h3>             <p><strong>Date:</strong> 01/04/2026</p>             <p>The journey and first impressions</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E001"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 4             </p>         </div>         </div>`)[0];
+                popup_ba7aa46310f60b5a459765ec29e2e502.setContent(html_dcdbaa0ac01a54efa3f57c75fa8fb6f6);
+            
+        
+
+        marker_8d7126be2ebcea2e35ee867f62afa1a2.bindPopup(popup_ba7aa46310f60b5a459765ec29e2e502)
+        ;
+
+        
+    
+    
+            marker_8d7126be2ebcea2e35ee867f62afa1a2.bindTooltip(
+                `<div>
+                     Travel and first exploration
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8d7126be2ebcea2e35ee867f62afa1a2.setIcon(icon_5f5b40290451d1ee34bc31e6f47772b4);
+            
+    
+            var marker_08925912f1c6bb54cf0b9f998e3505ba = L.marker(
+                [35.711381, 139.763187],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_75f9ab8ad8e659ee21d923bfe7b0081f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_359f383a61abac34742b71e95f7e421d = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_6378c073cc2118a612f8ec4951c3527a = $(`<div id="html_6378c073cc2118a612f8ec4951c3527a" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Travel and first exploration</h3>             <p><strong>Date:</strong> 01/04/2026</p>             <p>The journey and first impressions</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E001"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 4 of 4             </p>         </div>         </div>`)[0];
+                popup_359f383a61abac34742b71e95f7e421d.setContent(html_6378c073cc2118a612f8ec4951c3527a);
+            
+        
+
+        marker_08925912f1c6bb54cf0b9f998e3505ba.bindPopup(popup_359f383a61abac34742b71e95f7e421d)
+        ;
+
+        
+    
+    
+            marker_08925912f1c6bb54cf0b9f998e3505ba.bindTooltip(
+                `<div>
+                     Travel and first exploration
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_08925912f1c6bb54cf0b9f998e3505ba.setIcon(icon_75f9ab8ad8e659ee21d923bfe7b0081f);
+            
+    
+            var poly_line_fb9e410719ef5f51df586563b76f1931 = L.polyline(
+                [[35.706336, 139.751763], [35.715348, 139.773259]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_fb9e410719ef5f51df586563b76f1931.bindTooltip(
+                `<div>
+                     Tokyo Dome and Ueno park
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_bf81090ed45365dfcc018d3aba711cc8 = L.marker(
+                [35.706336, 139.751763],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_a50cbfdc1349c1bbd00c5976190549ce = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_92a83055bf145884a316b0531edf6747 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_4bb0323f0188e7e6795c6eefa69944e1 = $(`<div id="html_4bb0323f0188e7e6795c6eefa69944e1" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Tokyo Dome and Ueno park</h3>             <p><strong>Date:</strong> 03/04/2026</p>             <p>A stroll around Tokyo Dome and Ueno park to hunt some blooming sakura trees</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E002"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_92a83055bf145884a316b0531edf6747.setContent(html_4bb0323f0188e7e6795c6eefa69944e1);
+            
+        
+
+        marker_bf81090ed45365dfcc018d3aba711cc8.bindPopup(popup_92a83055bf145884a316b0531edf6747)
+        ;
+
+        
+    
+    
+            marker_bf81090ed45365dfcc018d3aba711cc8.bindTooltip(
+                `<div>
+                     Tokyo Dome and Ueno park
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_bf81090ed45365dfcc018d3aba711cc8.setIcon(icon_a50cbfdc1349c1bbd00c5976190549ce);
+            
+    
+            var marker_fd419ea2a79cefdc422179aa0455e322 = L.marker(
+                [35.715348, 139.773259],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_19e769521268fb1b41c1a0fddb60a680 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_53ae7751d1c6ea9379b01f9a8510bb7e = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_727f676b3469ea5d02ab41e892c991a2 = $(`<div id="html_727f676b3469ea5d02ab41e892c991a2" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Tokyo Dome and Ueno park</h3>             <p><strong>Date:</strong> 03/04/2026</p>             <p>A stroll around Tokyo Dome and Ueno park to hunt some blooming sakura trees</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E002"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_53ae7751d1c6ea9379b01f9a8510bb7e.setContent(html_727f676b3469ea5d02ab41e892c991a2);
+            
+        
+
+        marker_fd419ea2a79cefdc422179aa0455e322.bindPopup(popup_53ae7751d1c6ea9379b01f9a8510bb7e)
+        ;
+
+        
+    
+    
+            marker_fd419ea2a79cefdc422179aa0455e322.bindTooltip(
+                `<div>
+                     Tokyo Dome and Ueno park
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_fd419ea2a79cefdc422179aa0455e322.setIcon(icon_19e769521268fb1b41c1a0fddb60a680);
+            
+    
+            var poly_line_a2357ca152570929a597b038ab4fcc6a = L.polyline(
+                [[35.685768, 139.71018], [35.699957, 139.771384]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_a2357ca152570929a597b038ab4fcc6a.bindTooltip(
+                `<div>
+                     First full energy day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_add9aadeb445dd8f97b125e1c3c69531 = L.marker(
+                [35.685768, 139.71018],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_f0fe46a331680be0a0d6a6c639eb3ae5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ecb641979ac5e53256cfb04a6de56218 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_b8bbc5264eadc8f245a121b7c4772344 = $(`<div id="html_b8bbc5264eadc8f245a121b7c4772344" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>First full energy day</h3>             <p><strong>Date:</strong> 04/04/2026</p>             <p>Dedicated sakura garden visit and Tokyo National museum visit</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E003"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_ecb641979ac5e53256cfb04a6de56218.setContent(html_b8bbc5264eadc8f245a121b7c4772344);
+            
+        
+
+        marker_add9aadeb445dd8f97b125e1c3c69531.bindPopup(popup_ecb641979ac5e53256cfb04a6de56218)
+        ;
+
+        
+    
+    
+            marker_add9aadeb445dd8f97b125e1c3c69531.bindTooltip(
+                `<div>
+                     First full energy day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_add9aadeb445dd8f97b125e1c3c69531.setIcon(icon_f0fe46a331680be0a0d6a6c639eb3ae5);
+            
+    
+            var marker_0869299a1ed29cba5e4d47752e482ca8 = L.marker(
+                [35.699957, 139.771384],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_47281fc91eb20c78f922431d542a1acd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ad6373c65b13ddb8c4c511f377498f26 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_f1919d146b7bb419092cbc7f5ae245dc = $(`<div id="html_f1919d146b7bb419092cbc7f5ae245dc" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>First full energy day</h3>             <p><strong>Date:</strong> 04/04/2026</p>             <p>Dedicated sakura garden visit and Tokyo National museum visit</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E003"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_ad6373c65b13ddb8c4c511f377498f26.setContent(html_f1919d146b7bb419092cbc7f5ae245dc);
+            
+        
+
+        marker_0869299a1ed29cba5e4d47752e482ca8.bindPopup(popup_ad6373c65b13ddb8c4c511f377498f26)
+        ;
+
+        
+    
+    
+            marker_0869299a1ed29cba5e4d47752e482ca8.bindTooltip(
+                `<div>
+                     First full energy day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0869299a1ed29cba5e4d47752e482ca8.setIcon(icon_47281fc91eb20c78f922431d542a1acd);
+            
+    
+            var poly_line_424c3bec1b372ed4d177cd65540516d9 = L.polyline(
+                [[35.700241, 139.767988], [35.720624, 139.760898]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_424c3bec1b372ed4d177cd65540516d9.bindTooltip(
+                `<div>
+                     First bouldering sunday
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d4069408e8a3dcfd432f60a3eb3276c2 = L.marker(
+                [35.700241, 139.767988],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_299515f897db1169b575dd8ab51154ca = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ad084b2201201fa2d3cf26bd63e4598b = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_af52a094f95b8d455a9d4abbe6585ae5 = $(`<div id="html_af52a094f95b8d455a9d4abbe6585ae5" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First bouldering sunday</h3>             <p><strong>Date:</strong> 05/04/2026</p>             <p>Start of my bouldering journey and hidden gem shrine</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E004"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_ad084b2201201fa2d3cf26bd63e4598b.setContent(html_af52a094f95b8d455a9d4abbe6585ae5);
+            
+        
+
+        marker_d4069408e8a3dcfd432f60a3eb3276c2.bindPopup(popup_ad084b2201201fa2d3cf26bd63e4598b)
+        ;
+
+        
+    
+    
+            marker_d4069408e8a3dcfd432f60a3eb3276c2.bindTooltip(
+                `<div>
+                     First bouldering sunday
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d4069408e8a3dcfd432f60a3eb3276c2.setIcon(icon_299515f897db1169b575dd8ab51154ca);
+            
+    
+            var marker_9db2b5ef4ba83c5b64fec1392adea069 = L.marker(
+                [35.720624, 139.760898],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_c240bf193074f1035f414e45d2a534c2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_aa6d77d40cc06cf77496a500fe814f6e = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_76ad9769ee8abd39f464244566bae0ab = $(`<div id="html_76ad9769ee8abd39f464244566bae0ab" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First bouldering sunday</h3>             <p><strong>Date:</strong> 05/04/2026</p>             <p>Start of my bouldering journey and hidden gem shrine</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E004"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_aa6d77d40cc06cf77496a500fe814f6e.setContent(html_76ad9769ee8abd39f464244566bae0ab);
+            
+        
+
+        marker_9db2b5ef4ba83c5b64fec1392adea069.bindPopup(popup_aa6d77d40cc06cf77496a500fe814f6e)
+        ;
+
+        
+    
+    
+            marker_9db2b5ef4ba83c5b64fec1392adea069.bindTooltip(
+                `<div>
+                     First bouldering sunday
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9db2b5ef4ba83c5b64fec1392adea069.setIcon(icon_c240bf193074f1035f414e45d2a534c2);
+            
+    
+            var poly_line_014674189f4ff12bed84d7db4fac3487 = L.polyline(
+                [[36.761784, 139.599226], [35.749472, 139.804176]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_014674189f4ff12bed84d7db4fac3487.bindTooltip(
+                `<div>
+                     Nikkou with colleagues
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_88450f71ebce32cc8dcb27771dd499ee = L.marker(
+                [36.761784, 139.599226],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_dd87eaac567dacb20450d7c259fd491a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_db64b927d31d57007c33e7ff04b7bcb6 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_754d32feea35fc28902f271a2bae562a = $(`<div id="html_754d32feea35fc28902f271a2bae562a" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Nikkou with colleagues</h3>             <p><strong>Date:</strong> 11/04/2026</p>             <p>Visit of Nikkou with colleagues. Place where first Shoguns are buried and enshrined, the most decorated buildings in Japan</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E005"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_db64b927d31d57007c33e7ff04b7bcb6.setContent(html_754d32feea35fc28902f271a2bae562a);
+            
+        
+
+        marker_88450f71ebce32cc8dcb27771dd499ee.bindPopup(popup_db64b927d31d57007c33e7ff04b7bcb6)
+        ;
+
+        
+    
+    
+            marker_88450f71ebce32cc8dcb27771dd499ee.bindTooltip(
+                `<div>
+                     Nikkou with colleagues
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_88450f71ebce32cc8dcb27771dd499ee.setIcon(icon_dd87eaac567dacb20450d7c259fd491a);
+            
+    
+            var marker_43ddebfa90cfaf6ab99b5576e327e720 = L.marker(
+                [35.749472, 139.804176],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_de63145b98a42ecc16d072ef2e81016b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0c760313dc1a844c6584b783d3c757e5 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_81b66f7f3c633355ef68225f785c8deb = $(`<div id="html_81b66f7f3c633355ef68225f785c8deb" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Nikkou with colleagues</h3>             <p><strong>Date:</strong> 11/04/2026</p>             <p>Visit of Nikkou with colleagues. Place where first Shoguns are buried and enshrined, the most decorated buildings in Japan</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E005"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_0c760313dc1a844c6584b783d3c757e5.setContent(html_81b66f7f3c633355ef68225f785c8deb);
+            
+        
+
+        marker_43ddebfa90cfaf6ab99b5576e327e720.bindPopup(popup_0c760313dc1a844c6584b783d3c757e5)
+        ;
+
+        
+    
+    
+            marker_43ddebfa90cfaf6ab99b5576e327e720.bindTooltip(
+                `<div>
+                     Nikkou with colleagues
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_43ddebfa90cfaf6ab99b5576e327e720.setIcon(icon_de63145b98a42ecc16d072ef2e81016b);
+            
+    
+            var marker_6e67a079762a6092d9969991487c6d89 = L.marker(
+                [35.642786, 139.86002],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_65b69a0d0d96c1eb68adc6477c244a36 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_558c19862db833f4ba935778b214886d = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_c6baae60d9d9252da76bef45d5e0d7fd = $(`<div id="html_c6baae60d9d9252da76bef45d5e0d7fd" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Seafront sunday</h3>             <p><strong>Date:</strong> 12/04/2026</p>             <p>Seafront exploration with aquarium visit and walk around Tokyo station</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E006"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_558c19862db833f4ba935778b214886d.setContent(html_c6baae60d9d9252da76bef45d5e0d7fd);
+            
+        
+
+        marker_6e67a079762a6092d9969991487c6d89.bindPopup(popup_558c19862db833f4ba935778b214886d)
+        ;
+
+        
+    
+    
+            marker_6e67a079762a6092d9969991487c6d89.bindTooltip(
+                `<div>
+                     Seafront sunday
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6e67a079762a6092d9969991487c6d89.setIcon(icon_65b69a0d0d96c1eb68adc6477c244a36);
+            
+    
+            var marker_b12585e8374663c16dfafcae29d3f174 = L.marker(
+                [35.649608, 139.790289],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_eb493324a37849f9311ac082f155dbf5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_18b292792e5ef7ccd165440988e2a5a7 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_b9a637ecf8e29c00cc07e9dec53c1066 = $(`<div id="html_b9a637ecf8e29c00cc07e9dec53c1066" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>TeamLab Planets with Kaci and Walid</h3>             <p><strong>Date:</strong> 17/04/2026</p>             <p>One of the most instagram friendly places visit with Kaci and Walid</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E007"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_18b292792e5ef7ccd165440988e2a5a7.setContent(html_b9a637ecf8e29c00cc07e9dec53c1066);
+            
+        
+
+        marker_b12585e8374663c16dfafcae29d3f174.bindPopup(popup_18b292792e5ef7ccd165440988e2a5a7)
+        ;
+
+        
+    
+    
+            marker_b12585e8374663c16dfafcae29d3f174.bindTooltip(
+                `<div>
+                     TeamLab Planets with Kaci and Walid
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b12585e8374663c16dfafcae29d3f174.setIcon(icon_eb493324a37849f9311ac082f155dbf5);
+            
+    
+            var poly_line_daf92fcbadd4466aad793a56fd50e930 = L.polyline(
+                [[35.665258, 139.770423], [35.690247, 139.691429], [35.691005, 139.704887]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_daf92fcbadd4466aad793a56fd50e930.bindTooltip(
+                `<div>
+                     Kaci and Walid weekend
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_c0d1bc46aac2658b4a697e439db24159 = L.marker(
+                [35.665258, 139.770423],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_8f861e967be0e1c0a574cd2e9141a5a0 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ba436cc923574d1ad7e59a56b346e5d3 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_7681c4cc7d44b6643fad44c7ae2e58b5 = $(`<div id="html_7681c4cc7d44b6643fad44c7ae2e58b5" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Kaci and Walid weekend</h3>             <p><strong>Date:</strong> 18/04/2026</p>             <p>Weekend of timing blunders and substitute programs including meeting not only Kaci and Walid, but also Vaness and Honza</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E008"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 3             </p>         </div>         </div>`)[0];
+                popup_ba436cc923574d1ad7e59a56b346e5d3.setContent(html_7681c4cc7d44b6643fad44c7ae2e58b5);
+            
+        
+
+        marker_c0d1bc46aac2658b4a697e439db24159.bindPopup(popup_ba436cc923574d1ad7e59a56b346e5d3)
+        ;
+
+        
+    
+    
+            marker_c0d1bc46aac2658b4a697e439db24159.bindTooltip(
+                `<div>
+                     Kaci and Walid weekend
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c0d1bc46aac2658b4a697e439db24159.setIcon(icon_8f861e967be0e1c0a574cd2e9141a5a0);
+            
+    
+            var marker_47eb3013ae4773bcea6af5e8f0705956 = L.marker(
+                [35.690247, 139.691429],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_ba6b34753a77c808ea83d75bafe853c3 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e4e086c36071577f4e6e6b62f57d67e9 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_92bb998b49ec6e95c6f3db58c66608d8 = $(`<div id="html_92bb998b49ec6e95c6f3db58c66608d8" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Kaci and Walid weekend</h3>             <p><strong>Date:</strong> 18/04/2026</p>             <p>Weekend of timing blunders and substitute programs including meeting not only Kaci and Walid, but also Vaness and Honza</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E008"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 3             </p>         </div>         </div>`)[0];
+                popup_e4e086c36071577f4e6e6b62f57d67e9.setContent(html_92bb998b49ec6e95c6f3db58c66608d8);
+            
+        
+
+        marker_47eb3013ae4773bcea6af5e8f0705956.bindPopup(popup_e4e086c36071577f4e6e6b62f57d67e9)
+        ;
+
+        
+    
+    
+            marker_47eb3013ae4773bcea6af5e8f0705956.bindTooltip(
+                `<div>
+                     Kaci and Walid weekend
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_47eb3013ae4773bcea6af5e8f0705956.setIcon(icon_ba6b34753a77c808ea83d75bafe853c3);
+            
+    
+            var marker_4a6c3d5542ccb9777caa2d7605f4ffa1 = L.marker(
+                [35.691005, 139.704887],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_f74d634c9bff2fd8726219d035b893f0 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2b1cf9f80916cdcd478f6c0ec836ee95 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_5993508067332d6db67fa04396a7c696 = $(`<div id="html_5993508067332d6db67fa04396a7c696" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Kaci and Walid weekend</h3>             <p><strong>Date:</strong> 18/04/2026</p>             <p>Weekend of timing blunders and substitute programs including meeting not only Kaci and Walid, but also Vaness and Honza</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E008"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 3             </p>         </div>         </div>`)[0];
+                popup_2b1cf9f80916cdcd478f6c0ec836ee95.setContent(html_5993508067332d6db67fa04396a7c696);
+            
+        
+
+        marker_4a6c3d5542ccb9777caa2d7605f4ffa1.bindPopup(popup_2b1cf9f80916cdcd478f6c0ec836ee95)
+        ;
+
+        
+    
+    
+            marker_4a6c3d5542ccb9777caa2d7605f4ffa1.bindTooltip(
+                `<div>
+                     Kaci and Walid weekend
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4a6c3d5542ccb9777caa2d7605f4ffa1.setIcon(icon_f74d634c9bff2fd8726219d035b893f0);
+            
+    
+            var marker_b269abbec889d5a00c3a76e2f9072550 = L.marker(
+                [36.739526, 139.501831],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_c74d3750dd4a63cb499f05dfe51cd44d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cc7f8a41f0a4be18b22b89aa06004192 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_b2625ce90dd0a6f5c0e1c01aa6a3025d = $(`<div id="html_b2625ce90dd0a6f5c0e1c01aa6a3025d" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Nikko with Wendy and Luci</h3>             <p><strong>Date:</strong> 27/04/2026</p>             <p>Wendy and Luci arrived to Japan and we went to see Nikko and the nature above it</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E009"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_cc7f8a41f0a4be18b22b89aa06004192.setContent(html_b2625ce90dd0a6f5c0e1c01aa6a3025d);
+            
+        
+
+        marker_b269abbec889d5a00c3a76e2f9072550.bindPopup(popup_cc7f8a41f0a4be18b22b89aa06004192)
+        ;
+
+        
+    
+    
+            marker_b269abbec889d5a00c3a76e2f9072550.bindTooltip(
+                `<div>
+                     Nikko with Wendy and Luci
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b269abbec889d5a00c3a76e2f9072550.setIcon(icon_c74d3750dd4a63cb499f05dfe51cd44d);
+            
+    
+            var poly_line_bd59d960af08294adac10da56f76de14 = L.polyline(
+                [[34.275049, 132.305763], [34.396334, 132.453881], [34.968186, 135.779445]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_bd59d960af08294adac10da56f76de14.bindTooltip(
+                `<div>
+                     Hiroshima and Itsukushima visit
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_f65128c0477277f6a475e102e49b690a = L.marker(
+                [34.275049, 132.305763],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_6ddaa4a7f8fc241d56367a2b30b9c56f = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d733e3cec8e3010dea6c87e7d3f5a03f = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_8b01871e23fe4479cebc933f2018bf2b = $(`<div id="html_8b01871e23fe4479cebc933f2018bf2b" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Hiroshima and Itsukushima visit</h3>             <p><strong>Date:</strong> 29/04/2026</p>             <p>The start of week with Wendy and Luci, first proper stop in Hiroshima and on Itsukushima island - the floating Torii gate shrine, and evening visit of Fushimi Inari Taisha</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E010"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 3             </p>         </div>         </div>`)[0];
+                popup_d733e3cec8e3010dea6c87e7d3f5a03f.setContent(html_8b01871e23fe4479cebc933f2018bf2b);
+            
+        
+
+        marker_f65128c0477277f6a475e102e49b690a.bindPopup(popup_d733e3cec8e3010dea6c87e7d3f5a03f)
+        ;
+
+        
+    
+    
+            marker_f65128c0477277f6a475e102e49b690a.bindTooltip(
+                `<div>
+                     Hiroshima and Itsukushima visit
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_f65128c0477277f6a475e102e49b690a.setIcon(icon_6ddaa4a7f8fc241d56367a2b30b9c56f);
+            
+    
+            var marker_8890cd2608633b5520faac13d5183bf2 = L.marker(
+                [34.396334, 132.453881],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_0d9feadd5d96477eadbe958661a20e54 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d1532810327d93829931c3be9732f175 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_ea793fdd2a4756f294b70eb6db4e47e7 = $(`<div id="html_ea793fdd2a4756f294b70eb6db4e47e7" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Hiroshima and Itsukushima visit</h3>             <p><strong>Date:</strong> 29/04/2026</p>             <p>The start of week with Wendy and Luci, first proper stop in Hiroshima and on Itsukushima island - the floating Torii gate shrine, and evening visit of Fushimi Inari Taisha</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E010"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 3             </p>         </div>         </div>`)[0];
+                popup_d1532810327d93829931c3be9732f175.setContent(html_ea793fdd2a4756f294b70eb6db4e47e7);
+            
+        
+
+        marker_8890cd2608633b5520faac13d5183bf2.bindPopup(popup_d1532810327d93829931c3be9732f175)
+        ;
+
+        
+    
+    
+            marker_8890cd2608633b5520faac13d5183bf2.bindTooltip(
+                `<div>
+                     Hiroshima and Itsukushima visit
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8890cd2608633b5520faac13d5183bf2.setIcon(icon_0d9feadd5d96477eadbe958661a20e54);
+            
+    
+            var marker_5c27b26a67668439d5ade4ecd1468e53 = L.marker(
+                [34.968186, 135.779445],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_dd95e6eacaf5a7423e8d17d199a294fa = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c02dedc1d49b13a09084588069a769fa = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_a3560fba952632cfad2475f537a11299 = $(`<div id="html_a3560fba952632cfad2475f537a11299" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Hiroshima and Itsukushima visit</h3>             <p><strong>Date:</strong> 29/04/2026</p>             <p>The start of week with Wendy and Luci, first proper stop in Hiroshima and on Itsukushima island - the floating Torii gate shrine, and evening visit of Fushimi Inari Taisha</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E010"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 3             </p>         </div>         </div>`)[0];
+                popup_c02dedc1d49b13a09084588069a769fa.setContent(html_a3560fba952632cfad2475f537a11299);
+            
+        
+
+        marker_5c27b26a67668439d5ade4ecd1468e53.bindPopup(popup_c02dedc1d49b13a09084588069a769fa)
+        ;
+
+        
+    
+    
+            marker_5c27b26a67668439d5ade4ecd1468e53.bindTooltip(
+                `<div>
+                     Hiroshima and Itsukushima visit
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_5c27b26a67668439d5ade4ecd1468e53.setIcon(icon_dd95e6eacaf5a7423e8d17d199a294fa);
+            
+    
+            var poly_line_ab1ec4b2fd0eb6a6ba948e099f665796 = L.polyline(
+                [[35.017873, 135.671087], [35.039861, 135.729372], [35.000169, 135.779504], [35.005611, 135.773645]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_ab1ec4b2fd0eb6a6ba948e099f665796.bindTooltip(
+                `<div>
+                     First full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_508c1d77f37a848a4073c66b7842d84a = L.marker(
+                [35.017873, 135.671087],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_0dcdfd080e4594fcbe5ce52f079ec90b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_07a746455d9ff2408fe03608f26e1818 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_2d0c4e12dc356a5c6cef1bf933f67971 = $(`<div id="html_2d0c4e12dc356a5c6cef1bf933f67971" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First full Kyoto day</h3>             <p><strong>Date:</strong> 30/04/2026</p>             <p>Full Kyoto day of not good weather filled with bamboo, gold villa, and famous neighborhoods exploration</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E011"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 4             </p>         </div>         </div>`)[0];
+                popup_07a746455d9ff2408fe03608f26e1818.setContent(html_2d0c4e12dc356a5c6cef1bf933f67971);
+            
+        
+
+        marker_508c1d77f37a848a4073c66b7842d84a.bindPopup(popup_07a746455d9ff2408fe03608f26e1818)
+        ;
+
+        
+    
+    
+            marker_508c1d77f37a848a4073c66b7842d84a.bindTooltip(
+                `<div>
+                     First full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_508c1d77f37a848a4073c66b7842d84a.setIcon(icon_0dcdfd080e4594fcbe5ce52f079ec90b);
+            
+    
+            var marker_78323a048982d0cee425093c50ff9072 = L.marker(
+                [35.039861, 135.729372],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_739888709c2b2e77936d31f576b9ec07 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_8674b6e74765b401efd06fbea7d9e968 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_358dccb1045323434f80224f402d1348 = $(`<div id="html_358dccb1045323434f80224f402d1348" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First full Kyoto day</h3>             <p><strong>Date:</strong> 30/04/2026</p>             <p>Full Kyoto day of not good weather filled with bamboo, gold villa, and famous neighborhoods exploration</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E011"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 4             </p>         </div>         </div>`)[0];
+                popup_8674b6e74765b401efd06fbea7d9e968.setContent(html_358dccb1045323434f80224f402d1348);
+            
+        
+
+        marker_78323a048982d0cee425093c50ff9072.bindPopup(popup_8674b6e74765b401efd06fbea7d9e968)
+        ;
+
+        
+    
+    
+            marker_78323a048982d0cee425093c50ff9072.bindTooltip(
+                `<div>
+                     First full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_78323a048982d0cee425093c50ff9072.setIcon(icon_739888709c2b2e77936d31f576b9ec07);
+            
+    
+            var marker_c358802bac5cc5f2ecae5b0d0309b0fd = L.marker(
+                [35.000169, 135.779504],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_5373dff611c6a163f4d98d0b0f2ea688 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b90b570ead13b1cf3419319aa6793b15 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_936c47fa263f9993fdbe2737db1ce335 = $(`<div id="html_936c47fa263f9993fdbe2737db1ce335" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First full Kyoto day</h3>             <p><strong>Date:</strong> 30/04/2026</p>             <p>Full Kyoto day of not good weather filled with bamboo, gold villa, and famous neighborhoods exploration</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E011"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 4             </p>         </div>         </div>`)[0];
+                popup_b90b570ead13b1cf3419319aa6793b15.setContent(html_936c47fa263f9993fdbe2737db1ce335);
+            
+        
+
+        marker_c358802bac5cc5f2ecae5b0d0309b0fd.bindPopup(popup_b90b570ead13b1cf3419319aa6793b15)
+        ;
+
+        
+    
+    
+            marker_c358802bac5cc5f2ecae5b0d0309b0fd.bindTooltip(
+                `<div>
+                     First full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c358802bac5cc5f2ecae5b0d0309b0fd.setIcon(icon_5373dff611c6a163f4d98d0b0f2ea688);
+            
+    
+            var marker_d010a7724d78d1cf9da699334da85178 = L.marker(
+                [35.005611, 135.773645],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_6b32bf847eecf62729f03e39b9154fa6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ba2f41af8208fcbff39088a848daef30 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_a7d10a9e13a28ca1e5f133c1fc0cdd23 = $(`<div id="html_a7d10a9e13a28ca1e5f133c1fc0cdd23" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>First full Kyoto day</h3>             <p><strong>Date:</strong> 30/04/2026</p>             <p>Full Kyoto day of not good weather filled with bamboo, gold villa, and famous neighborhoods exploration</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E011"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 4 of 4             </p>         </div>         </div>`)[0];
+                popup_ba2f41af8208fcbff39088a848daef30.setContent(html_a7d10a9e13a28ca1e5f133c1fc0cdd23);
+            
+        
+
+        marker_d010a7724d78d1cf9da699334da85178.bindPopup(popup_ba2f41af8208fcbff39088a848daef30)
+        ;
+
+        
+    
+    
+            marker_d010a7724d78d1cf9da699334da85178.bindTooltip(
+                `<div>
+                     First full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d010a7724d78d1cf9da699334da85178.setIcon(icon_6b32bf847eecf62729f03e39b9154fa6);
+            
+    
+            var poly_line_27eb1b7074ce17b9588e88863d2a13fd = L.polyline(
+                [[34.984454, 135.765023], [35.024519, 135.76253], [35.009368, 135.762471], [35.016333, 135.782641]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_27eb1b7074ce17b9588e88863d2a13fd.bindTooltip(
+                `<div>
+                     Second full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_cc00e5c3932ab95e999fdc2778f92a15 = L.marker(
+                [34.984454, 135.765023],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_d2e6d56271d19089b157e1d0822cd3fd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ec4c50b6b593b0a45be3bc6342b5f51f = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_fb1452bda6c7a1362b08df8d4c043f15 = $(`<div id="html_fb1452bda6c7a1362b08df8d4c043f15" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second full Kyoto day</h3>             <p><strong>Date:</strong> 01/05/2026</p>             <p>TeamLab Kyoto visit, Imperial castle visit, lucky streetfood find, and mini izakaya visit with a lot of sake and cute grandpa owner</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E012"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 4             </p>         </div>         </div>`)[0];
+                popup_ec4c50b6b593b0a45be3bc6342b5f51f.setContent(html_fb1452bda6c7a1362b08df8d4c043f15);
+            
+        
+
+        marker_cc00e5c3932ab95e999fdc2778f92a15.bindPopup(popup_ec4c50b6b593b0a45be3bc6342b5f51f)
+        ;
+
+        
+    
+    
+            marker_cc00e5c3932ab95e999fdc2778f92a15.bindTooltip(
+                `<div>
+                     Second full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_cc00e5c3932ab95e999fdc2778f92a15.setIcon(icon_d2e6d56271d19089b157e1d0822cd3fd);
+            
+    
+            var marker_7215de14b21e78c83663352bcf36aa9e = L.marker(
+                [35.024519, 135.76253],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_a80dca34889186dd4001274d5d4d6fe2 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7eb90d894370846afd4e7baf8b3b233c = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_a2ad30ec1fb93fa770aeeb8f97820d98 = $(`<div id="html_a2ad30ec1fb93fa770aeeb8f97820d98" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second full Kyoto day</h3>             <p><strong>Date:</strong> 01/05/2026</p>             <p>TeamLab Kyoto visit, Imperial castle visit, lucky streetfood find, and mini izakaya visit with a lot of sake and cute grandpa owner</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E012"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 4             </p>         </div>         </div>`)[0];
+                popup_7eb90d894370846afd4e7baf8b3b233c.setContent(html_a2ad30ec1fb93fa770aeeb8f97820d98);
+            
+        
+
+        marker_7215de14b21e78c83663352bcf36aa9e.bindPopup(popup_7eb90d894370846afd4e7baf8b3b233c)
+        ;
+
+        
+    
+    
+            marker_7215de14b21e78c83663352bcf36aa9e.bindTooltip(
+                `<div>
+                     Second full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7215de14b21e78c83663352bcf36aa9e.setIcon(icon_a80dca34889186dd4001274d5d4d6fe2);
+            
+    
+            var marker_76a639e84afd04e92ae076714f131c8d = L.marker(
+                [35.009368, 135.762471],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_314b80a165d41e379c536d997eac3723 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ec18bb71a2708dbd40e99557de6fd6fa = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_36af558420755c1143e393dfd58ac452 = $(`<div id="html_36af558420755c1143e393dfd58ac452" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second full Kyoto day</h3>             <p><strong>Date:</strong> 01/05/2026</p>             <p>TeamLab Kyoto visit, Imperial castle visit, lucky streetfood find, and mini izakaya visit with a lot of sake and cute grandpa owner</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E012"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 4             </p>         </div>         </div>`)[0];
+                popup_ec18bb71a2708dbd40e99557de6fd6fa.setContent(html_36af558420755c1143e393dfd58ac452);
+            
+        
+
+        marker_76a639e84afd04e92ae076714f131c8d.bindPopup(popup_ec18bb71a2708dbd40e99557de6fd6fa)
+        ;
+
+        
+    
+    
+            marker_76a639e84afd04e92ae076714f131c8d.bindTooltip(
+                `<div>
+                     Second full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_76a639e84afd04e92ae076714f131c8d.setIcon(icon_314b80a165d41e379c536d997eac3723);
+            
+    
+            var marker_fef093f93286da29a85b75f3b7a56ef5 = L.marker(
+                [35.016333, 135.782641],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_dc996683fcb919e9714c0d4036621d2c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5c91622a3a2d8fe8f52dd18efb4e39f3 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_2f0443390fc15763997dd3c79e49e6a1 = $(`<div id="html_2f0443390fc15763997dd3c79e49e6a1" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second full Kyoto day</h3>             <p><strong>Date:</strong> 01/05/2026</p>             <p>TeamLab Kyoto visit, Imperial castle visit, lucky streetfood find, and mini izakaya visit with a lot of sake and cute grandpa owner</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E012"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 4 of 4             </p>         </div>         </div>`)[0];
+                popup_5c91622a3a2d8fe8f52dd18efb4e39f3.setContent(html_2f0443390fc15763997dd3c79e49e6a1);
+            
+        
+
+        marker_fef093f93286da29a85b75f3b7a56ef5.bindPopup(popup_5c91622a3a2d8fe8f52dd18efb4e39f3)
+        ;
+
+        
+    
+    
+            marker_fef093f93286da29a85b75f3b7a56ef5.bindTooltip(
+                `<div>
+                     Second full Kyoto day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_fef093f93286da29a85b75f3b7a56ef5.setIcon(icon_dc996683fcb919e9714c0d4036621d2c);
+            
+    
+            var poly_line_b6fe99163fd50f970ac0d4ed046ea90a = L.polyline(
+                [[34.685582, 135.843646], [34.651774, 135.506003]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_b6fe99163fd50f970ac0d4ed046ea90a.bindTooltip(
+                `<div>
+                     Nara visit and Osaka evening
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3846e293c286fa675c94e3e4069d4cf5 = L.marker(
+                [34.685582, 135.843646],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_18f4df0019973a09de36c038c2646e15 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_86c1883862d55727c4198be19786e782 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_17b4574150d4c60de42b4bda56941d26 = $(`<div id="html_17b4574150d4c60de42b4bda56941d26" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Nara visit and Osaka evening</h3>             <p><strong>Date:</strong> 02/05/2026</p>             <p>Travelling from Kyoto to Osaka via Nara, where we met the bowing deer and visited some shrines</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E013"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_86c1883862d55727c4198be19786e782.setContent(html_17b4574150d4c60de42b4bda56941d26);
+            
+        
+
+        marker_3846e293c286fa675c94e3e4069d4cf5.bindPopup(popup_86c1883862d55727c4198be19786e782)
+        ;
+
+        
+    
+    
+            marker_3846e293c286fa675c94e3e4069d4cf5.bindTooltip(
+                `<div>
+                     Nara visit and Osaka evening
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_3846e293c286fa675c94e3e4069d4cf5.setIcon(icon_18f4df0019973a09de36c038c2646e15);
+            
+    
+            var marker_99aa9b7c63debf2360176f1a699dd2c6 = L.marker(
+                [34.651774, 135.506003],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_a2fd98c35cb8818dff55d63f5848c6be = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_9c2d82fca54409bc21fd48b0c7cd2563 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_cd4e6a4c0e7c7a0f91877f74bcb21905 = $(`<div id="html_cd4e6a4c0e7c7a0f91877f74bcb21905" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Nara visit and Osaka evening</h3>             <p><strong>Date:</strong> 02/05/2026</p>             <p>Travelling from Kyoto to Osaka via Nara, where we met the bowing deer and visited some shrines</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E013"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_9c2d82fca54409bc21fd48b0c7cd2563.setContent(html_cd4e6a4c0e7c7a0f91877f74bcb21905);
+            
+        
+
+        marker_99aa9b7c63debf2360176f1a699dd2c6.bindPopup(popup_9c2d82fca54409bc21fd48b0c7cd2563)
+        ;
+
+        
+    
+    
+            marker_99aa9b7c63debf2360176f1a699dd2c6.bindTooltip(
+                `<div>
+                     Nara visit and Osaka evening
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_99aa9b7c63debf2360176f1a699dd2c6.setIcon(icon_a2fd98c35cb8818dff55d63f5848c6be);
+            
+    
+            var poly_line_00591384d80a05f03ba779bddb066d13 = L.polyline(
+                [[34.687821, 135.525855], [34.683339, 135.520533], [34.644053, 135.503256]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_00591384d80a05f03ba779bddb066d13.bindTooltip(
+                `<div>
+                     Osaka history day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_f8a98c2f91231e6daae1f81595e2fe8f = L.marker(
+                [34.687821, 135.525855],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_a0997878dd8bed5ca1604f51fb71b8c4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3c0661f200bf030502549016357d0f60 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_9bda16dc6affcda409c3f841b8f81efe = $(`<div id="html_9bda16dc6affcda409c3f841b8f81efe" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>Osaka history day</h3>             <p><strong>Date:</strong> 03/05/2026</p>             <p>First full Osaka day where I split from the girls to visit big museums. In the evening we had the best food experience and eyebrow raising experience.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E014"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 3             </p>         </div>         </div>`)[0];
+                popup_3c0661f200bf030502549016357d0f60.setContent(html_9bda16dc6affcda409c3f841b8f81efe);
+            
+        
+
+        marker_f8a98c2f91231e6daae1f81595e2fe8f.bindPopup(popup_3c0661f200bf030502549016357d0f60)
+        ;
+
+        
+    
+    
+            marker_f8a98c2f91231e6daae1f81595e2fe8f.bindTooltip(
+                `<div>
+                     Osaka history day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_f8a98c2f91231e6daae1f81595e2fe8f.setIcon(icon_a0997878dd8bed5ca1604f51fb71b8c4);
+            
+    
+            var marker_c76994fa3d3163c00570ec9f7f1349af = L.marker(
+                [34.683339, 135.520533],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_5e5b26418c138745748f55f280739710 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a8ccc62aa509936bf818ff7a788b37cb = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_09e53b4f59785fac5517d509cd4a943b = $(`<div id="html_09e53b4f59785fac5517d509cd4a943b" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>Osaka history day</h3>             <p><strong>Date:</strong> 03/05/2026</p>             <p>First full Osaka day where I split from the girls to visit big museums. In the evening we had the best food experience and eyebrow raising experience.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E014"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 3             </p>         </div>         </div>`)[0];
+                popup_a8ccc62aa509936bf818ff7a788b37cb.setContent(html_09e53b4f59785fac5517d509cd4a943b);
+            
+        
+
+        marker_c76994fa3d3163c00570ec9f7f1349af.bindPopup(popup_a8ccc62aa509936bf818ff7a788b37cb)
+        ;
+
+        
+    
+    
+            marker_c76994fa3d3163c00570ec9f7f1349af.bindTooltip(
+                `<div>
+                     Osaka history day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c76994fa3d3163c00570ec9f7f1349af.setIcon(icon_5e5b26418c138745748f55f280739710);
+            
+    
+            var marker_a2e35c2532b7aa9eeca900db1b67cb08 = L.marker(
+                [34.644053, 135.503256],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_122e1dfe15ecfe74b41dfd11c74875d9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "university",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2d20e320633456f66054f1304f6b7f30 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_3ea86ed48b53c2c26f14405faef32aff = $(`<div id="html_3ea86ed48b53c2c26f14405faef32aff" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #fff0df;">             <h3>Osaka history day</h3>             <p><strong>Date:</strong> 03/05/2026</p>             <p>First full Osaka day where I split from the girls to visit big museums. In the evening we had the best food experience and eyebrow raising experience.</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E014"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 3 of 3             </p>         </div>         </div>`)[0];
+                popup_2d20e320633456f66054f1304f6b7f30.setContent(html_3ea86ed48b53c2c26f14405faef32aff);
+            
+        
+
+        marker_a2e35c2532b7aa9eeca900db1b67cb08.bindPopup(popup_2d20e320633456f66054f1304f6b7f30)
+        ;
+
+        
+    
+    
+            marker_a2e35c2532b7aa9eeca900db1b67cb08.bindTooltip(
+                `<div>
+                     Osaka history day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a2e35c2532b7aa9eeca900db1b67cb08.setIcon(icon_122e1dfe15ecfe74b41dfd11c74875d9);
+            
+    
+            var poly_line_a2e138fe957af800705cb3dc6e82fac5 = L.polyline(
+                [[34.866479, 135.491173], [34.70583644457979, 135.4897156945344]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_a2e138fe957af800705cb3dc6e82fac5.bindTooltip(
+                `<div>
+                     Second Osaka day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_6c87525690d27b800e7abc116ea31255 = L.marker(
+                [34.866479, 135.491173],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_81b521334a0aad7c2159298de7a21f01 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e4b7b22a5fdfac3e280caeba76060638 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_12b2a8822977defcc4038c2b609d6b2e = $(`<div id="html_12b2a8822977defcc4038c2b609d6b2e" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second Osaka day</h3>             <p><strong>Date:</strong> 04/05/2026</p>             <p>Second full Osaka day, where the main event was visiting the Daruma origin shrine - Katsuo-ji temple</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E015"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_e4b7b22a5fdfac3e280caeba76060638.setContent(html_12b2a8822977defcc4038c2b609d6b2e);
+            
+        
+
+        marker_6c87525690d27b800e7abc116ea31255.bindPopup(popup_e4b7b22a5fdfac3e280caeba76060638)
+        ;
+
+        
+    
+    
+            marker_6c87525690d27b800e7abc116ea31255.bindTooltip(
+                `<div>
+                     Second Osaka day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6c87525690d27b800e7abc116ea31255.setIcon(icon_81b521334a0aad7c2159298de7a21f01);
+            
+    
+            var marker_e56ca24ce613c05b0793ff65763b42c1 = L.marker(
+                [34.70583644457979, 135.4897156945344],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_c9990dbf9819dea7a1320c64b3fddb45 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a7caaecf3323f69d4785c3f553f90808 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_8fcfd2a7348a0b7e2d3919ab0c212ae7 = $(`<div id="html_8fcfd2a7348a0b7e2d3919ab0c212ae7" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Second Osaka day</h3>             <p><strong>Date:</strong> 04/05/2026</p>             <p>Second full Osaka day, where the main event was visiting the Daruma origin shrine - Katsuo-ji temple</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E015"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_a7caaecf3323f69d4785c3f553f90808.setContent(html_8fcfd2a7348a0b7e2d3919ab0c212ae7);
+            
+        
+
+        marker_e56ca24ce613c05b0793ff65763b42c1.bindPopup(popup_a7caaecf3323f69d4785c3f553f90808)
+        ;
+
+        
+    
+    
+            marker_e56ca24ce613c05b0793ff65763b42c1.bindTooltip(
+                `<div>
+                     Second Osaka day
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_e56ca24ce613c05b0793ff65763b42c1.setIcon(icon_c9990dbf9819dea7a1320c64b3fddb45);
+            
+    
+            var poly_line_690e659e8e415f6a0a6c264787f31b9f = L.polyline(
+                [[35.252165208531345, 139.1615607274733], [35.24850709163191, 139.03617261244707]],
+                {"bubblingMouseEvents": true, "color": "#667788", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#667788", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            poly_line_690e659e8e415f6a0a6c264787f31b9f.bindTooltip(
+                `<div>
+                     Return to Tokyo
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9c4d965e2112045c19d93a105d917473 = L.marker(
+                [35.252165208531345, 139.1615607274733],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_5bb4204b27ccfd7589007b0d46df5908 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_a1e02956e980813e3001b74a96975f12 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_356b56e678b7ab436ffbd9662bd6911d = $(`<div id="html_356b56e678b7ab436ffbd9662bd6911d" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Return to Tokyo</h3>             <p><strong>Date:</strong> 05/05/2026</p>             <p>Journey back to Tokyo with an attempt to see nice things in Hakone and Odawara</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E016"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 2             </p>         </div>         </div>`)[0];
+                popup_a1e02956e980813e3001b74a96975f12.setContent(html_356b56e678b7ab436ffbd9662bd6911d);
+            
+        
+
+        marker_9c4d965e2112045c19d93a105d917473.bindPopup(popup_a1e02956e980813e3001b74a96975f12)
+        ;
+
+        
+    
+    
+            marker_9c4d965e2112045c19d93a105d917473.bindTooltip(
+                `<div>
+                     Return to Tokyo
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9c4d965e2112045c19d93a105d917473.setIcon(icon_5bb4204b27ccfd7589007b0d46df5908);
+            
+    
+            var marker_ddee7cefb82875021eca57401b4f646a = L.marker(
+                [35.24850709163191, 139.03617261244707],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_6bfaaccc342386f4daf49fc5f8a61e63 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "purple",
+  "iconColor": "white",
+  "icon": "building",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0559548ea446876895a28353fce15799 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_5d89e6ff64e9b6d34459051cf8fd10a3 = $(`<div id="html_5d89e6ff64e9b6d34459051cf8fd10a3" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #eee8f7;">             <h3>Return to Tokyo</h3>             <p><strong>Date:</strong> 05/05/2026</p>             <p>Journey back to Tokyo with an attempt to see nice things in Hakone and Odawara</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E016"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 2 of 2             </p>         </div>         </div>`)[0];
+                popup_0559548ea446876895a28353fce15799.setContent(html_5d89e6ff64e9b6d34459051cf8fd10a3);
+            
+        
+
+        marker_ddee7cefb82875021eca57401b4f646a.bindPopup(popup_0559548ea446876895a28353fce15799)
+        ;
+
+        
+    
+    
+            marker_ddee7cefb82875021eca57401b4f646a.bindTooltip(
+                `<div>
+                     Return to Tokyo
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_ddee7cefb82875021eca57401b4f646a.setIcon(icon_6bfaaccc342386f4daf49fc5f8a61e63);
+            
+    
+            var marker_4c6ac1bfa68fdecd2751c791839af86b = L.marker(
+                [35.785441, 139.149159],
+                {
+}
+            ).addTo(map_25f48a118c4e783bde6a6fdee2dcec96);
+        
+    
+            var icon_98832941ef6df4ca853e2fad7a8c4c94 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "mountain-sun",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d2d239ef78275db52ead8a175bdd8207 = L.popup({
+  "maxWidth": 320,
+});
+
+        
+            
+                var html_9c374baae7ea5c85c7fc5a6cd01d5156 = $(`<div id="html_9c374baae7ea5c85c7fc5a6cd01d5156" style="width: 100.0%; height: 100.0%;">         <div class="journal-popup" style="--popup-bg: #e6eef9;">             <h3>First hike in Japan - Mitake yama</h3>             <p><strong>Date:</strong> 09/05/2026</p>             <p>The first Japanese hike to Mount Mitake and Mount Hinode through beautiful cedar trees forests</p>             <button                 class="expand-entry"                 type="button"                 data-entry-id="E017"             >                 Expand details             </button>             <p style="font-size: 12px; color: #666;">                 Place 1 of 1             </p>         </div>         </div>`)[0];
+                popup_d2d239ef78275db52ead8a175bdd8207.setContent(html_9c374baae7ea5c85c7fc5a6cd01d5156);
+            
+        
+
+        marker_4c6ac1bfa68fdecd2751c791839af86b.bindPopup(popup_d2d239ef78275db52ead8a175bdd8207)
+        ;
+
+        
+    
+    
+            marker_4c6ac1bfa68fdecd2751c791839af86b.bindTooltip(
+                `<div>
+                     First hike in Japan - Mitake yama
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4c6ac1bfa68fdecd2751c791839af86b.setIcon(icon_98832941ef6df4ca853e2fad7a8c4c94);
+            
+    
+    (function () {
+        const map = map_25f48a118c4e783bde6a6fdee2dcec96;
+        const entries = [{"id": "E001", "name": "Travel and first exploration", "date": "01/04/2026", "category": "Town", "abstract": "The journey and first impressions", "media": "https://drive.google.com/drive/folders/1eSK81GvL0bTEKP4tbbplqcJ9hgdaX4bQ?usp=sharing", "memo": "I was lucky to catch a flight from Lux to Helsinky on an anniversary of Lux-Fin connections - free Cinnamon rolls at the airport, free champagne in the plane \n\nThe long flight was quite uncomfortable, the economy seat was fine, but 13:30 h is a lot in full plane...\n\nArrival process took more than an hour, I got some panic throughout the process, but in the end getting a Suica card and getting to Hongo campus was quite smooth.\n\nHongo campus is really nice - almost european looking old buildings, park in the middle with a very nice lake and Japanese stories vibes at night", "highlight": false, "tier": "B", "sort_order": 1, "points": [{"latitude": 49.629157, "longitude": 6.212543, "marker_label": "Lux airport", "marker_order": 1}, {"latitude": 60.318464, "longitude": 24.968599, "marker_label": "Hel airport", "marker_order": 2}, {"latitude": 35.549912, "longitude": 139.778787, "marker_label": "Haneda airport", "marker_order": 3}, {"latitude": 35.711381, "longitude": 139.763187, "marker_label": "Hongo campus", "marker_order": 4}], "mediaItems": []}, {"id": "E002", "name": "Tokyo Dome and Ueno park", "date": "03/04/2026", "category": "Town", "abstract": "A stroll around Tokyo Dome and Ueno park to hunt some blooming sakura trees", "media": "https://drive.google.com/drive/folders/1OUUdvOopRZXDmT_eBocGxd7yBQD0MYYG?usp=sharing", "memo": "After unsuccessful registration attempt at the municipality, a walk through the streets of Tokyo and around Tokyo Dome. Didn't want to pay for a small garden entry as I had no cash at the time.\n\nUeno park is one of the spots for sakura trees, so the path was packed with ppl trying to get the best photo. The temple looks nice, but didn't spend too much time around as my main quest was to get sushi.\n\nSushiro is the franchise to go for to get fast sushi, I was told... But waiting to get a table took like 15-20 minutes... But man, it was worth it, everything (except crab paste) was super yummy!", "highlight": false, "tier": "B", "sort_order": 2, "points": [{"latitude": 35.706336, "longitude": 139.751763, "marker_label": "Tokyo Dome", "marker_order": 1}, {"latitude": 35.715348, "longitude": 139.773259, "marker_label": "Ueno park", "marker_order": 2}], "mediaItems": []}, {"id": "E003", "name": "First full energy day", "date": "04/04/2026", "category": "Museum", "abstract": "Dedicated sakura garden visit and Tokyo National museum visit", "media": "https://drive.google.com/drive/folders/1dlj7ZAytT_gZ76DI-eYt9DjFJ8Lo8BMw?usp=sharing", "memo": "The sakura season is on, so let's go see the Sakuras in some nice garden. My weather app is telling me Sunday will be horrible, so let's do it on Saturday! \n\nSo I went, Shinjuku gardens should have like gazzilion different types of Sakuras, so it seemed like a good place. In the end, the most beautiful part was the Japanese garden. For some parts it was too soon to be pretty, as the plants and trees were only waking up from the winter. After like the first 30 minutes it started raining...\n\nAkihabara is very famous anime spot, which is not something I am really into... So I didn't put much attention to it. During the day it probably doesn't feel like it should...\n\nBut oh boy the Curry place... Tiny, maybe 15 spots max, like 2 spots left, I got a beef curry and it was great! But no option to select your spice level, and the default was like 9/10 of my spice tolerance... I'll need to come back some day to try again!\n\nStill the whole afternoon to spend, so with the bad weather I went to the national museum of Tokyo. Consisting of like 4 buildings, it's a big place to explore. One exposition was about old wooden masks and the festivals they were used for, then general Japanese crafts and items from start of civilisation until like 1800s.\n\nOne building was for East Asia expedition of some Japanese explorer/archeologist who wanted to find the origins of the imported buddhism, so items from China/India/even Iran/Egypt were displayed.\n\nNice addition was a \"fortune telling\" section where goat/sheep bones dices gave me good fortune! And a super nice gift shop, where I will need to go back some day.", "highlight": true, "tier": "A", "sort_order": 3, "points": [{"latitude": 35.685768, "longitude": 139.71018, "marker_label": "Shinjuku Goyen Garden", "marker_order": 1}, {"latitude": 35.699957, "longitude": 139.771384, "marker_label": "Akihabara", "marker_order": 2}], "mediaItems": []}, {"id": "E004", "name": "First bouldering sunday", "date": "05/04/2026", "category": "Town", "abstract": "Start of my bouldering journey and hidden gem shrine", "media": "https://drive.google.com/drive/folders/1oBDGQsBHW-gd_mqnfUjj2PJ4iE2adjbC?usp=sharing", "memo": "Boulderiiiing! Yeah, chose the most european style looking place, where there are 4 floors of boulders of all levels. However the legends were true... Japanese grading system and climbers are on different level. From my V3-V4 in Lux I struggle to do at least some V2-V3s... In french grading the best I did was 5+, but it also shows that my level should be 6B in Lux, which I'm not sure about...\n\nThen I visited Matsuya for the first time and it was great! The food is yummy, the chopsticks are the right thickness, ordering screens are there, so perfect for me.\n\nIn the afternoon a small walk from campus away there is the Nezu shrine, which is super gorgeous. Just walking around and smiling and trying to not offend any deities.", "highlight": false, "tier": "B", "sort_order": 4, "points": [{"latitude": 35.700241, "longitude": 139.767988, "marker_label": "BPump Akihabara", "marker_order": 1}, {"latitude": 35.720624, "longitude": 139.760898, "marker_label": "Nezu Shrine", "marker_order": 2}], "mediaItems": []}, {"id": "E005", "name": "Nikkou with colleagues", "date": "11/04/2026", "category": "Town", "abstract": "Visit of Nikkou with colleagues. Place where first Shoguns are buried and enshrined, the most decorated buildings in Japan", "media": "https://drive.google.com/drive/folders/1Q5XbigLOzAoGrpqzzJlawsRl8JAiq_2b?usp=drive_link", "memo": "Sugita-san invited everyone to go to Nikkó as it should be beautiful this time of the year, so 7 students, Yuichiro with his wife, visiting professor from US and her son and me went to Nikkó. \n\nThe weather was super nice, the crowds were not big and both student girls and Hikaru were talking to me quite a lot, so that was super nice. The temples should be one of the most decorated temples in Japan as it is the final resting place of quite a few very important Shoguns. \n\nThere is the original no hear no see no speak monkey trio and also unique good luck catto above one gate. In the biggest temple, super amazing thing is a roaring dragon. There is a big painting of a dragon on the ceiling of the main room of the temple, and if you clap, or hit the praying sticks together under it's mouth, there's a very hearable echo \"the dragon roars\". If the sticks are hit together anywhere else in the room, there is no echo.\n\nIn another temple a little outside the main group, there is an original painting of a lion from 1600s, armor of the shogun who is buried there from when he was 15 with a fly head helmet (as it sees everywhere around), and very decorated ceiling with many little dragons with 2 varieties - going up to heaven with a wishing stone, and returning back already without wishing stone. \n\nOverall, the amount of lanterns and cute little things is super nice, the nature around with HUGE trees is great, but I hope to explore more with Kači and Walid next weekend.\n\nOn the way back we stopped near the Kita-Senju train station, where we found the MOST Japanese looking street I've seen so far. It really seems like that's the real place where young japanese ppl go out. We ended up in a taiwanese bar, where there was a little bit of karaoke and we had some drinks with Sugita-san and couple of the other students.", "highlight": false, "tier": "A", "sort_order": 5, "points": [{"latitude": 36.761784, "longitude": 139.599226, "marker_label": "Nikko area", "marker_order": 1}, {"latitude": 35.749472, "longitude": 139.804176, "marker_label": "Kita-Senju bar street", "marker_order": 2}], "mediaItems": []}, {"id": "E006", "name": "Seafront sunday", "date": "12/04/2026", "category": "Town", "abstract": "Seafront exploration with aquarium visit and walk around Tokyo station", "media": "https://drive.google.com/drive/folders/18J3wOF-L0LHgMCgv0Ed4_uO2VHm7cV-D?usp=drive_link", "memo": "I really wanted to see the sea, smell the salty air, so I asked Hikaru for suggestions and he suggested this park. It is apparently a very popular place for families and young lovera, because so many japanese children I've never seen in my life before. And a LOT of young couples on a date there.\n\nIt is also a bird watching place, so there were a lot of bird watching huts and old japanese ppl with huge cameras. It was nice to walk around and at least hear the different birds eventhough I haven't seen many of them. The beach area has a big BBQ place, where ppl were bringing tents and camping stuff to do their own BBQ party. \n\nAdditionally there is an aquarium with apparently one of the biggest tuna fishes in captivity. And boy they were HUGE. A lot of different displays of different kinds of sealife including hammerhead sharks and penguins. I bought a little sea pancake plushie and a little magnetic tuna. \n\nOn the way back I walked around the Tokyo main station area and the amount of ppl and the size of the place is scary. Will need to explore it better so I know where to go when the shinkansen time comes. On the way back home I stopped in random Izakaya, which was looking modern with tablet ordering system and got chicken skewer menu, which was nice.", "highlight": false, "tier": "B", "sort_order": 6, "points": [{"latitude": 35.642786, "longitude": 139.86002, "marker_label": "Kasai Rinkai park", "marker_order": 1}], "mediaItems": []}, {"id": "E007", "name": "TeamLab Planets with Kaci and Walid", "date": "17/04/2026", "category": "Museum", "abstract": "One of the most instagram friendly places visit with Kaci and Walid", "media": "https://drive.google.com/drive/folders/1arWdO23jSEYXa0hO5z5yYFvuCs64IMuf?usp=drive_link", "memo": "Kači and Walid arrived for a weekend in Tokyo and I joined their plans for Friday evening. First of all we met to get some food and we found a place with really good Ramen with beef. The owner spoke enough English to accommodate us and the gyoza were excellent!\n\nAfterwards we made our way to TeamLab Planets, which is the most instagram friendly place built to be instagram friendly place I've been to. Big lines of tourists from different areas around there. The experience inside was really good looking, but bizarre in many ways. In the Water part, the first corridor was to be walked barefoot uphill in a stream of water probably just to clean everyone's feet before the next parts... An employee whose only job was to hand little towel to everyone to dry their feet might have one of the worst jobs out there.\n\nThen a various combination of either sensory or aestheticly pleasing rooms followed with big lines towards anything notable.\n\nI'm not sure I would go there on my own, but with Kači and Walid it was a nice experience.", "highlight": false, "tier": "B", "sort_order": 7, "points": [{"latitude": 35.649608, "longitude": 139.790289, "marker_label": "TeamLab Planets", "marker_order": 1}], "mediaItems": []}, {"id": "E008", "name": "Kaci and Walid weekend", "date": "18/04/2026", "category": "Town", "abstract": "Weekend of timing blunders and substitute programs including meeting not only Kaci and Walid, but also Vaness and Honza", "media": "https://drive.google.com/drive/folders/1Vsk8fl2zpYmb_LFJzE_E1lDipoQ6CioB?usp=drive_link", "memo": "A weekend full of timing blunders (meeting up on Saturday, train miss on Sunday) still brought a lot to be remembered. \n\nOn Saturday we went through the fish market at Tsukiji, where we (mostly I) were overwhelmed with the amount of tourists and little shops selling all kinds of foods and goods. We tasted some local tuna sashimi, wagyu yakitori, fish cake corn dog, some mitarashi dango (sweet soy bean balls dipped in sweet soy sauce), some other sashimi kinds... Don't know if it was to appeal more to the tourists or if it's the default, but the amount of yelling vendors and customer hunters was too much for me.\n\nThen we moved to the Tsukishima street area, where we were able to find a teppanyaki restaurant called Kondō, where we had the luck of being served by the most kind girl yet. The food making is on you, as you'll get just a bowl of stuff and there's a hot plate in front of you. We were assisted by the kind girl to make 3 different kinds of foods, all very tasty. The worst choice of that place was a tomato beer... Which tasted just like when you wash your pasta sauce can with water and drink it. The restaurant is not to blame, I would not expect it to taste otherwise. To add to the cuteness, the girl ran out to wish us a nice day when we were leaving and we met a very old man with a very old and Věry big turtle with a little hat.\n\nIn the afternoon I met with Vaness and Honza and they very much matched my feelings about Japan so far, so we chilled in the Shinjuku Gyoen Gardens together and then went towards the tourist Area of Shinjuku with all the shops and bars and... Ppl...\n\nThe amount of ppl was just overwhelming but we were approached by a Young Japanese man who wants to improve his english and I might meet up with him one of these days. In the end we made our way to the Metropolitan Goverment building, where there was a video show projected on the building façade with Godzilla and Pokemon. Great time there!\n\nOn Sunday we ended up just meeting for sushiro with Kači and Walid after missing our train to Nikkó. Instead I finally bought a notebook for eki stamps and started collecting them! As well as dedicated Goshuin notebook to collect them.", "highlight": false, "tier": "C", "sort_order": 8, "points": [{"latitude": 35.665258, "longitude": 139.770423, "marker_label": "Tsukiji market", "marker_order": 1}, {"latitude": 35.690247, "longitude": 139.691429, "marker_label": "Tokyo Metropolitan Government building", "marker_order": 2}, {"latitude": 35.691005, "longitude": 139.704887, "marker_label": "Shinjuku", "marker_order": 3}], "mediaItems": []}, {"id": "E009", "name": "Nikko with Wendy and Luci", "date": "27/04/2026", "category": "Town", "abstract": "Wendy and Luci arrived to Japan and we went to see Nikko and the nature above it", "media": "https://drive.google.com/drive/folders/1TSK-U7WevoCU8ZprRvRUJ830jjcoeoFC?usp=drive_link", "memo": "The quest was clear - see the rest of what the Nikkó area has to offer. Mainly the nature above the city itself. After (this time) successfully boarding the train to Nikkó and getting there, we boarded a bus heading up to the Chuzenji lake. \n\nAfter a 45 minute bus ride which consisted of an intense 10+ hairpin climb we got to see the lake. It is a very nice lake. With the mountains around, it creates a very nice piece of nature. We chose to walk to the British and Italian embassy villas a bit further along the lake coast. Well, those guys can pick a nice place to build an embassy villa. The area is also very popular for fishermen as we met and saw a lot of them. \n\nAfter heading back to the bus path, we went to check the Kegon waterfalls, which were a bit underwhelming, but it just might be because of the sunny period. So we made our way back to the temples. We got off the bus a bit earlier than needed which allowed us to explore a little hidden shrine and a christian church closeby. \n\nThen the temple visit, where I got 3 separate Goshuin. One of them was made by an old lady on the spot, which is absolutely impressive. The calligraphy part takes her like 30 seconds and all movements and strokes are perfect. With enough time to spare we made our way slowly to the train station to get back. \n\nBut it wouldn't be a trip to Nikkó without a fuckup... So because of me misreading the info emails, we missed our intended train by 10 minutes... Needed to wait an hour for the next. To end the day we went to the super japanese street near Kita-senju station in Tokyo, where we ended up in Hidakaya to get some ramen. The girls accidently ordered breakfast cold ramen which really wasn't good... I ordered some other one which was at least hot, but not really good... So the day ended on a bit sour note. And this might have been the first unpleasant food place experience in Japan", "highlight": false, "tier": "A", "sort_order": 9, "points": [{"latitude": 36.739526, "longitude": 139.501831, "marker_label": "Nikko nature", "marker_order": 1}], "mediaItems": []}, {"id": "E010", "name": "Hiroshima and Itsukushima visit", "date": "29/04/2026", "category": "Town", "abstract": "The start of week with Wendy and Luci, first proper stop in Hiroshima and on Itsukushima island - the floating Torii gate shrine, and evening visit of Fushimi Inari Taisha", "media": "https://drive.google.com/drive/folders/1Lxu0xW7gyccTQITJX7AmshUWztwcPpWf?usp=drive_link", "memo": "After arriving to Kyoto to meet the girls, the next day we boarded another shinkansen in the morning to get to Hiroshima. The first thing on the list there was the floating temple at the Itsukushima island.\n\nYou need to get there by a small traject, which was fun with how excited were the Japanese kids about it. The whole island feels like it should be worth a full day trip. By visiting the floating gate and walking around the town near there we did not have time to properly explore the whole island, but the pieces we've seen were very nice. In addition to all the sights, there were some more or less polite deers just hanging around the place.\n\nOn the way back to the trajects I got at least grilled scallops, which were really good. Like way better than I expected, because they almost fell apart in the mouth as opposed to the slimy chewy form I expected. The hardcore seafood taste came only after a while, but did not spoil the experience.\n\nAfter leaving Itsukushima, we made our way to the middle of Hiroshima to see the famous atom dome. The story is as shivering as ever. Even just reading the info near the dome you can't help but feel some shame, because of the heritage. It is a beautiful place in its own way and I am not surprised they are trying to keep it there in the current state. Near there, there's also a tall building, where anybody can go to one of the top floors and do a origami crane and add it to the thousands and thousands others that are in a huge glass compartment spanning most of the floors. \n\nThen we wanted to get food at a famous ramen fastfood, but after waiting 20 minutes for our numbers to get called, we were allowed to go in, but asked to wait in another approx 20 minute line to order. Which was too much for us, so we left for another place. I got big pork schnitzel plate, which I was happy with, but girls were not happy with their chicken ones. We were not really lucky for the food places with the girls...\n\nAfter the food we went to the Hiroshima castle, which looks really nice, has some option to look inside the outer wall structures for free. A lot of koi carps in the moat. On the way back to the station we even met the peace origami crane monument. With still some time left, we could also explore several shrines near the train station out of which some were really nice and calming.\n\nAfter returning from Hiroshima, there was still one place to go to. The Fushimi Inari Taisha temple. It is famous for its seemingly neverending lines of red shrine gates. Apparently during the evening, some parts are even nicer as they are illuminated by lanterns. So we went to check it out.\n\nTo walk through the endless gates is really a nice experience. In the darkness it made me feel even more calm than it would in the day. By no small part thanks to the reduced number of people at that time. My phone camera is not good enough to really capture how pretty some of the parts are. \n\nThis place is definitely worth another visit as the temple site continues all the way to the top of the hill it's at. But as we had so much plans that day, we did not want to climb all the way to the top. I am quite curious if there's some nice view of Kyoto from the top.", "highlight": true, "tier": "S", "sort_order": 10, "points": [{"latitude": 34.275049, "longitude": 132.305763, "marker_label": "Itsukushima", "marker_order": 1}, {"latitude": 34.396334, "longitude": 132.453881, "marker_label": "Hiroshima Atomic Bomb Dome", "marker_order": 2}, {"latitude": 34.968186, "longitude": 135.779445, "marker_label": "Fushimi Inari Taisha", "marker_order": 3}], "mediaItems": []}, {"id": "E011", "name": "First full Kyoto day", "date": "30/04/2026", "category": "Town", "abstract": "Full Kyoto day of not good weather filled with bamboo, gold villa, and famous neighborhoods exploration", "media": "https://drive.google.com/drive/folders/1VsIoCmxZA__ENjIVJlIYMJAc4xwSgKie?usp=drive_link", "memo": "The first full day in Kyoto was dedicated to visiting the Bamboo forest area and surroundings in the North of Kyoto. The weather wasn't the best, but the big bamboos were quite cool. Of course, as it is one of the main tourist attractions, there were a lot of tourists completely blocking the pathways to try to take a cute photo.\n\nWe also entered one nice shrine with beautiful moss covered gardens and a lot of little stone statues. That was a really beautiful place called Hondo shrine. Later we made our way to Kinkaku-ji the temple with the famous golden pavillon. Again, flooded by tourists we tried to enjoy the stroll around. \n\nThen we tried to make our way back to the city with lunch on the way. Our first option was closed, but we went to a random ramen place where an old couple was serving a very simple ramen, which was extremely good. I took it with some kimchi and that was probably the best kimchi I've ever had. After the trip, the girls ranked this ramen as the best one they had in Japan.\n\nAfter we got back to the city, we made our way to the Kyoto's version of king's road in Prague - the area around Shimokawaracho, where many many little shops on a road connecting several ancient landmarks are. Overloaded by tourists again as expected, we just walked through trying not to fall on the slippery stones.\n\nAfter it got dark I went to visit one shrine, I believe it was the Yasaka shrine. The girls were tired so they went away and I was walking around Gion and also met with Vaness and Honza who were in the middle of their month in Japan. That was a refreshing meeting, we found also a nice water canal area in Gion and talked for a while.", "highlight": false, "tier": "A", "sort_order": 11, "points": [{"latitude": 35.017873, "longitude": 135.671087, "marker_label": "Arashiyama Bamboo forest", "marker_order": 1}, {"latitude": 35.039861, "longitude": 135.729372, "marker_label": "Kinkaku-ji", "marker_order": 2}, {"latitude": 35.000169, "longitude": 135.779504, "marker_label": "Ishibe Koji road", "marker_order": 3}, {"latitude": 35.005611, "longitude": 135.773645, "marker_label": "Gion shirakawa canal", "marker_order": 4}], "mediaItems": []}, {"id": "E012", "name": "Second full Kyoto day", "date": "01/05/2026", "category": "Town", "abstract": "TeamLab Kyoto visit, Imperial castle visit, lucky streetfood find, and mini izakaya visit with a lot of sake and cute grandpa owner", "media": "https://drive.google.com/drive/folders/1H45bmWBRaOUoi6KR7TYOA--D0dSyzV9b?usp=drive_link", "memo": "The second day in Kyoto started with the visit of TeamLab Kyoto. This branch of TeamLab is apparently the biggest in Japan and has some genuinely interesting displays. I had the most fun in the foam, which was impossible to make a good photo of, but it was really fun. Otherwise about a third of the displays is shared with Tokyo's TeamLab and if the ppl want to spend some time on different things it's quite hard to find yourself again.\n\nFor lunch we went to a place with multiple restaurants, where I chose a very underwhelming chop suey rice. But afterwards we went to visit the Kyoto imperial palace which is a nice Area. We met some group of dressed up locals doing a group photo and inside the palace area, apart from some indoor decorations visible for tourists, the most beautiful place was the garden of the palace.\n\nAfterwards we went for a nearby museum, where I spent more time than the girls so I also chose to go near the Heian-Jingu Shrine to see if it's opened. It wasn't, but there were some stands with food and I got some round gyoza which were probably the best gyoza I had in my life so far. \n\nIn the evening we went to an izakaya near our hotel, where we enjoyed some snackish food (I got a platter of fried stuff - starting with sweet potato, ending with shrimp, and including some sausage, meat, etc.) and also saké. We asked for both hot and cold one with Wendy, and were surprised to get like 0.3-0.4 liter jug for the cold one and like 0.2-0.3 liter vase for the hot one. The hot one is cheaper not because of the amount, but because the hot temperature hides its inferior quality. The cold one tasted quite similar to a kind of Slivovica, but the fruity tones were a bit hidden so the last cup was already a struggle.", "highlight": false, "tier": "B", "sort_order": 12, "points": [{"latitude": 34.984454, "longitude": 135.765023, "marker_label": "TeamLab Biovortex Kyoto", "marker_order": 1}, {"latitude": 35.024519, "longitude": 135.76253, "marker_label": "Kyoto Imperial Palace", "marker_order": 2}, {"latitude": 35.009368, "longitude": 135.762471, "marker_label": "Museum of Kyoto", "marker_order": 3}, {"latitude": 35.016333, "longitude": 135.782641, "marker_label": "Heian Jingu shrine", "marker_order": 4}], "mediaItems": []}, {"id": "E013", "name": "Nara visit and Osaka evening", "date": "02/05/2026", "category": "Town", "abstract": "Travelling from Kyoto to Osaka via Nara, where we met the bowing deer and visited some shrines", "media": "https://drive.google.com/drive/folders/1lUtoNbA79LWdNSYmrxrp1JxK2XjGYAto?usp=drive_link", "memo": "We figured out that it might be easier to get Nara trip during the transition between Kyoto and Ósaka as it is about the same distance from both the cities and we didn't have any other plans for the day. \n\nSo, initially, Nara was famous because of the shrines and forests around. The very well behaved deer became and attraction only way later in the history of Nara. Nowadays a big number of tourists come to Nara just for the deers, which is understandable, but also a bit sad. Especially as the deers are overloaded with the interactions and can become a bit aggressive. As was illustrated by one of the very first deers we met. We approached slowly and this guy just went straight for my plain white T-shirt and munched on it. After we flicked him, he just munched on the T-shirt more, so it took quite a tug and several flicks to the nose for him to let go and save my apparel.\n\nWe were just walking around trying to enjoy the less aggressive deer interactions, the forest, and smaller and bigger shrines around the area. In the end we walked up to what I believe is the Kasuga shrine. Inside the shrine there are many lantern ways and the dominant is a 1000 year old cedar tree, which looks gorgeous. On the way back to the station we saw also the big Todai-ji complex, where some building were quite impressive.\n\nAfter getting to Ósaka and to the place we stayed there, we were quite surprised of the worn-down look of the surroundings. Basically our hotel was at the edge of one of market streets that became roofed market streets closer to Dobutsen Mae and Ósaka tower. But our part was looking quite rough. A lot of small karaoke bars with older japanese men clientelle, lots and lots of closed shops, some very disturbing looking shops that were open.\n\nAnyways we found a gyoza/dumpling place near there that was quite nice. Aside from the dumplings I ordered also \"house speciality - knuckle licker chicken frames\" and what I got was a cold bowl of heavily marinated chicken parts from god knows which parts of chicken that was more bone than meat. The sauce was really good and my dumpling choice was also on point so I ended up being a little disturbed, but ultimately happy.\n\nThe area around the Ósaka tower is just all-year-long theme park. Many places where you can try to hit the target with various weapons to try to win some prize, even more places with crane games and lots of street food and lots of pachinko/casino places. Very overwhelming part of a town.\n\nTo take a rest from this we made our way to already closed Shitteno-ji Temple complex, where we found a lot of little stone Buddhas. And on the way back home I found the first Skyline GT-R in the wild.", "highlight": false, "tier": "A", "sort_order": 13, "points": [{"latitude": 34.685582, "longitude": 135.843646, "marker_label": "Nara park", "marker_order": 1}, {"latitude": 34.651774, "longitude": 135.506003, "marker_label": "Tsutenkaku", "marker_order": 2}], "mediaItems": []}, {"id": "E014", "name": "Osaka history day", "date": "03/05/2026", "category": "Museum", "abstract": "First full Osaka day where I split from the girls to visit big museums. In the evening we had the best food experience and eyebrow raising experience.", "media": "https://drive.google.com/drive/folders/11eql3g0ElvRz8x9TqPaNeZpZAbR0--2M?usp=drive_link", "memo": "A full day of Ósaka history. At least for me. The girls didn't want to spend the day, which was quite pretty, in museums, so we decided to split up for that day after reaching Ósaka castle together.\n\nÓsaka castle has one of the biggest moats in the world as it was the ultimate seat of military power of Japan until the end of the WW2. The castle grounds are now mostly parks and green areas. The castle itself is a huge building really showcasing why it became an emoji. The line to get inside was huge, so I did not join it and went to the war museum instead.\n\nThe war museum is a small museum dedicated to the reality of being bombed repeatedly and heavily during the climax of the WW2, as Ósaka castle area was the area with the biggest and the most significant ammo factories in Japan. The US army threw the biggest amount of bombs right here to Ósaka and the town population was reduced from around 6 million ppl pre-war to just 1 million after the war. Most of the ppl were evacuated or chose to go elsewhere of course, but thousands of ppl were killed during the air raids and several drawings and journal entries of the survivors were very graphic.\n\nThe Ósaka town museum was talking about the history of the town starting in 8th century, when the first Chinese-like castle was build there and gave the foundation for the style of buildings in the whole Japan. The expositions talked about how Ósaka was the seat of the Shogunate and by rice auctions the prices of all basic comodities were controlled by the rich right in the Ósaka port. The city layout did not change much since 10th century, except until the industrial revolution, when Ósaka became the \"Manchester of the East\". \n\nThe day ended with us going to get wagyu sukiyaki and it was the best meal of the trip. The kind lady owner was trying to take care of us so we could enjoy the meal as intended, the best photo of the trip was taken there (the cook with the huge chunk of wagyu beef), and overall we had a perfect experience there.\n\nAfter going out we saw some pretty lantern street on our left so we went there and suddenly found ourselves in an area, where each house had an open space where a young girl was sitting on a throne made of pillows, plushies, flowers and she was usually heavily glammed up and wearing anything from full size kimono to bikini. Next to the young girl there was usually an older woman in black who was using a round fan to cool the girl down and was looking out for customers. And also keeping her identity hidden against ppl who should not be there, as are other girls or children. So anytime they saw us, the face of the girl was immediately covered and we were quite loudly shooed away. For me the walk through there until we got back out of that area was very uncomfortable and I can't imagine going to such a place deliberately.", "highlight": false, "tier": "A", "sort_order": 14, "points": [{"latitude": 34.687821, "longitude": 135.525855, "marker_label": "Osaka castle", "marker_order": 1}, {"latitude": 34.683339, "longitude": 135.520533, "marker_label": "Osaka museum of history", "marker_order": 2}, {"latitude": 34.644053, "longitude": 135.503256, "marker_label": "Tobita Shinchi", "marker_order": 3}], "mediaItems": []}, {"id": "E015", "name": "Second Osaka day", "date": "04/05/2026", "category": "Town", "abstract": "Second full Osaka day, where the main event was visiting the Daruma origin shrine - Katsuo-ji temple", "media": "https://drive.google.com/drive/folders/16s5U0tu6bfx7CQSQ6PlN7CQI0zdSX24A?usp=drive_link", "memo": "On the second day in Ósaka we made our way to the Katsuo-ji Temple, which is famous mainly for it's Daruma icons. The little red figurines with various facial expressions. Those little guys have a fortune slip in their ass, which tells you one of the 64 yin-yang rune combinations that can then be alligned to the thing you were thinking about while choosing the little Daruma. The area of the Katsuo-ji Temple is also lovely and I enjoyed the area very much and the fortune slip I got sounds extremely applicable to my life.\n\nThen we made our way to downtown Ósaka to go look at the big new buildings and potentially try to find some more stamps. As the golden week holidays events were in full Force the amount of ppl around everywhere was becoming unbearable, so we were content with just seeing the buildings from below. On the way back to the hotel I wanted to go inside the Shitteno-ji temple, but arrived 15 minutes too late for both entrance and goshuin. At least we strolled through the antiques flea market and the girls bought some nice souvenirs there.\n\nIn the evening we went to get some ramen around the area of our hotel and our choice was good. It was the biggest portion of Ramen I had so far and with 1 big chicken egg and several small quail eggs, the food was plentiful. My body struggled with the sitting on the ground style of seats, but the food was great.", "highlight": false, "tier": "A", "sort_order": 15, "points": [{"latitude": 34.866479, "longitude": 135.491173, "marker_label": "Katsuo-ji temple", "marker_order": 1}, {"latitude": 34.70583644457979, "longitude": 135.4897156945344, "marker_label": "Umeda Sky building", "marker_order": 2}], "mediaItems": []}, {"id": "E016", "name": "Return to Tokyo", "date": "05/05/2026", "category": "Town", "abstract": "Journey back to Tokyo with an attempt to see nice things in Hakone and Odawara", "media": "https://drive.google.com/drive/folders/1wcpXhYQf2EZ5ILlLPdNM4XXI4BD1zH0o?usp=drive_link", "memo": "On the last day of our trip we just had to get from Ósaka to Tokyo. However we wanted to also see something pretty and do some part of the Hakone round. The plan was to get off in Odawara, get a bus to the lake Ashi, take a cable car up to the Owakudani active volcano and then get by train from Gora back to Odawara. In ideal case that would be like a 4 hour trip and we had 5.5 hours to spend.\n\nHowever when we wanted to board the bus, the lady told us that due to the Golden Week the traffic jams going to the lake Ashi may take up to 3 hours and sent us to take the train instead. So with a little bit of panic we got to the train towards Gora and googled if we can get to the volcano at least in the updated timeframe.\n\nWhen we got to Gora in the fully packed train, we were already very hungry and when we saw the line to the mountain train that should have taken us to the cablecar, we went for a food instead. The place was very accustomed to western ppl, but the curry I got was pretty nice. Then we climbed through the town to the cablecar station and when we saw the line it became obvious that if we wanted to go up to the volcano, we would have big trouble to catch our Shinkansen from Odawara later.\n\nThere should have been at least a viewpoint further along the road, but after a while the road was closed so the trip ended up being quite a fail. So we made our way back to Odawara, where we found ourselves witnessing the shrine carrying processions with some chants and songs and other stuff going on. That was a nice end to the week full of experiences.", "highlight": false, "tier": "B", "sort_order": 16, "points": [{"latitude": 35.252165208531345, "longitude": 139.1615607274733, "marker_label": "Odawara town", "marker_order": 1}, {"latitude": 35.24850709163191, "longitude": 139.03617261244707, "marker_label": "Gora village", "marker_order": 2}], "mediaItems": []}, {"id": "E017", "name": "First hike in Japan - Mitake yama", "date": "09/05/2026", "category": "Hike", "abstract": "The first Japanese hike to Mount Mitake and Mount Hinode through beautiful cedar trees forests", "media": "https://drive.google.com/drive/folders/1CtsErN6a7tNsj_-qAGhfcprJ7t3sOUFx?usp=drive_link", "memo": "What a glorious day. I asked Google Gemini to recommend a nice hiking area around Tokyo for me and it delivered one of the nicest days in Japan so far. The journey started with like 1:45 hour Journey to the west of Tokyo to area near Okutama. The journey was planned to take me up to mount Mitake to the Mitake shrine, then through an area called the Rock garden, and because I wanted to push myself a bit also to mount Hinode and then down to a valley to get back to Tokyo.\n\nThere was an option to go from the Mitake train station to the Mitake mountain summit by a combination of bus and a mountain train. I need to train so I went by foot. The climb was very tough. Along the trail the cedar trees were numbered so starting at number 660 from the bottom, I suspected the number 1 was somewhere near the top. What was nice was that along the trail several explanations were put to tell you about the history of the trail. A part about very sharp incline which was made easier by a very fast and sharp turns that some people started calling Rokuro after a ghost with a long neck that curves often.\n\nThe cedar tree 1 was still a few turns below the top, and the first nice view point was from the top station of the mountain train. However the top of the mountain was still some distance away. The Mitake shrine that's at the top is dedicated to wolves so ppl are taking their young puppies to be blessed there. That was one of the best rewards. To see all the puppies there. The views from the main shrine entrance were also very rewarding. \n\nAround that time I started feeling the pain from the hiking shoe vs my right outer ankle contact point which became a big problem towards the end, but did not stop me. \n\nI also visited a little museum with some samurai armor displayed along with some artworks and several katanas which was really nice. Then I made my way to the first waterfalls, where also a little shrine was. Very nice. Then along the river stream and a bit up to reach the stone that looks like a forest spirit's nose so they made 2 little statues of that spirit on the rock. Then down a rickety metal ladder/steps to reach the waterfall where local monks are meditating under. Then back up to by the stairs/ladders towards the Mitake shrine village.\n\nThen go towards mount Hinode, almost alone, except some super fitness japanese ppl running the trail and (of course) a group of like 8-10 german middle aged ppl on a spaziergang. When I reached the Hinode summit, I was rewarded with the nicest views of the day. The view of the Tokyo bay and surrounding hills was simply gorgeous. All that remained was a very painful way down to the bus that I couldn't really concentrate on the surroundings because of very careful stepping on my right foot.", "highlight": true, "tier": "S", "sort_order": 17, "points": [{"latitude": 35.785441, "longitude": 139.149159, "marker_label": "Mitake-san", "marker_order": 1}], "mediaItems": []}];
+        const markerNamesByEntry = {"E001": ["marker_5ee0cf18edfbe3faa432f173bd574ed9", "marker_b5e10859ab8cf403ee33336ccdd8b1f5", "marker_8d7126be2ebcea2e35ee867f62afa1a2", "marker_08925912f1c6bb54cf0b9f998e3505ba"], "E002": ["marker_bf81090ed45365dfcc018d3aba711cc8", "marker_fd419ea2a79cefdc422179aa0455e322"], "E003": ["marker_add9aadeb445dd8f97b125e1c3c69531", "marker_0869299a1ed29cba5e4d47752e482ca8"], "E004": ["marker_d4069408e8a3dcfd432f60a3eb3276c2", "marker_9db2b5ef4ba83c5b64fec1392adea069"], "E005": ["marker_88450f71ebce32cc8dcb27771dd499ee", "marker_43ddebfa90cfaf6ab99b5576e327e720"], "E006": ["marker_6e67a079762a6092d9969991487c6d89"], "E007": ["marker_b12585e8374663c16dfafcae29d3f174"], "E008": ["marker_c0d1bc46aac2658b4a697e439db24159", "marker_47eb3013ae4773bcea6af5e8f0705956", "marker_4a6c3d5542ccb9777caa2d7605f4ffa1"], "E009": ["marker_b269abbec889d5a00c3a76e2f9072550"], "E010": ["marker_f65128c0477277f6a475e102e49b690a", "marker_8890cd2608633b5520faac13d5183bf2", "marker_5c27b26a67668439d5ade4ecd1468e53"], "E011": ["marker_508c1d77f37a848a4073c66b7842d84a", "marker_78323a048982d0cee425093c50ff9072", "marker_c358802bac5cc5f2ecae5b0d0309b0fd", "marker_d010a7724d78d1cf9da699334da85178"], "E012": ["marker_cc00e5c3932ab95e999fdc2778f92a15", "marker_7215de14b21e78c83663352bcf36aa9e", "marker_76a639e84afd04e92ae076714f131c8d", "marker_fef093f93286da29a85b75f3b7a56ef5"], "E013": ["marker_3846e293c286fa675c94e3e4069d4cf5", "marker_99aa9b7c63debf2360176f1a699dd2c6"], "E014": ["marker_f8a98c2f91231e6daae1f81595e2fe8f", "marker_c76994fa3d3163c00570ec9f7f1349af", "marker_a2e35c2532b7aa9eeca900db1b67cb08"], "E015": ["marker_6c87525690d27b800e7abc116ea31255", "marker_e56ca24ce613c05b0793ff65763b42c1"], "E016": ["marker_9c4d965e2112045c19d93a105d917473", "marker_ddee7cefb82875021eca57401b4f646a"], "E017": ["marker_4c6ac1bfa68fdecd2751c791839af86b"]};
+        const driveApiKey = "AIzaSyCzkGVyHXz-eejVzClRLLU9WEFl01tCLhw";
+        const categoryStyles = {"Town": {"marker": "purple", "background": "#eee8f7"}, "Museum": {"marker": "orange", "background": "#fff0df"}, "Hike": {"marker": "blue", "background": "#e6eef9"}};
+        const highlightedEntryIds = ["E003", "E010", "E017"];
+
+        const entriesById = {};
+        for (const entry of entries) {
+            entriesById[entry.id] = entry;
+        }
+
+        map.whenReady(function () {
+            for (const entryId of highlightedEntryIds) {
+                const markerNames = markerNamesByEntry[entryId] || [];
+
+                for (const markerName of markerNames) {
+                    const marker = window[markerName];
+                    if (marker) {
+                        const markerElement = marker.getElement();
+                        if (markerElement) {
+                            markerElement.classList.add("highlight-marker");
+                            markerElement.style.setProperty(
+                                "filter",
+                                "drop-shadow(0 0 3px #ff1f1f) drop-shadow(0 0 6px #ff1f1f)",
+                                "important"
+                            );
+                        }
+                    }
+                }
+            }
+        });
+        function refreshMap(fitEntryId) {
+            window.setTimeout(function () {
+                map.invalidateSize();
+
+                if (fitEntryId && markerNamesByEntry[fitEntryId]) {
+                    const latLngs = [];
+
+                    for (const markerName of markerNamesByEntry[fitEntryId]) {
+                        const marker = window[markerName];
+                        if (marker) {
+                            latLngs.push(marker.getLatLng());
+                        }
+                    }
+
+                    if (latLngs.length === 1) {
+                        map.setView(latLngs[0], Math.max(map.getZoom(), 13));
+                    } else if (latLngs.length > 1) {
+                        map.fitBounds(L.latLngBounds(latLngs), {
+                            padding: [35, 35],
+                            maxZoom: 14
+                        });
+                    }
+                }
+            }, 350);
+        }
+
+        function makeEntryButton(entry) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "entry-button";
+            if (entry.highlight === true) {
+                button.classList.add("highlight-card");
+            }
+            const style = categoryStyles[entry.category] || {
+                background: "#f3f4f6"
+            };
+
+            button.style.setProperty("--category-bg", style.background);
+
+            button.dataset.entryId = entry.id;
+
+            const name = document.createElement("strong");
+            name.textContent = entry.name || "Untitled place";
+
+            const date = document.createElement("span");
+            date.textContent = entry.date || "";
+
+            const abstract = document.createElement("small");
+            abstract.textContent = entry.abstract || "";
+
+            button.append(name, date, abstract);
+            return button;
+        }
+
+        function fillEntryList(container, matchingEntries, emptyMessage) {
+            container.replaceChildren();
+
+            if (matchingEntries.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = emptyMessage;
+                container.appendChild(message);
+                return;
+            }
+
+            for (const entry of matchingEntries) {
+                container.appendChild(makeEntryButton(entry));
+            }
+        }
+
+        function renderSidebar() {
+            const categoryFilter = document.getElementById("category-filter");
+            const selectedCategory = categoryFilter.value;
+
+            const categoryEntries = selectedCategory === "__all__"
+                ? entries
+                : entries.filter(entry =>
+                    (entry.category || "Uncategorized") === selectedCategory
+                );
+
+            fillEntryList(
+                document.getElementById("category-entries"),
+                categoryEntries,
+                "No entries in this category."
+            );
+
+            // Highlights stay independent of the selected category.
+            const highlightedEntries = entries.filter(
+                entry => entry.highlight === true
+            );
+
+            fillEntryList(
+                document.getElementById("highlight-entries"),
+                highlightedEntries,
+                "No highlighted entries yet."
+            );
+
+            // Tier groups follow the selected category.
+            const tierContainer = document.getElementById("tier-groups");
+            tierContainer.replaceChildren();
+
+            const entriesWithTiers = categoryEntries.filter(
+                entry => entry.tier && entry.tier.trim() !== ""
+            );
+
+            if (entriesWithTiers.length === 0) {
+                const message = document.createElement("p");
+                message.className = "placeholder";
+                message.textContent = "No tiered entries in this category.";
+                tierContainer.appendChild(message);
+                return;
+            }
+
+            const preferredOrder = ["S", "A", "B", "C", "D"];
+            const tierNames = [...new Set(
+                entriesWithTiers.map(entry => entry.tier.trim())
+            )].sort((a, b) => {
+                const aIndex = preferredOrder.indexOf(a);
+                const bIndex = preferredOrder.indexOf(b);
+
+                if (aIndex !== -1 || bIndex !== -1) {
+                    if (aIndex === -1) return 1;
+                    if (bIndex === -1) return -1;
+                    return aIndex - bIndex;
+                }
+
+                return a.localeCompare(b);
+            });
+
+            for (const tier of tierNames) {
+                const groupEntries = entriesWithTiers.filter(
+                    entry => entry.tier.trim() === tier
+                );
+
+                const group = document.createElement("details");
+                group.className = "tier-group";
+
+                const heading = document.createElement("summary");
+                heading.textContent = `Tier ${tier} (${groupEntries.length})`;
+
+                const list = document.createElement("div");
+                list.className = "entry-list";
+
+                for (const entry of groupEntries) {
+                    list.appendChild(makeEntryButton(entry));
+                }
+
+                group.append(heading, list);
+                tierContainer.appendChild(group);
+            }
+        }
+        let activeMediaItems = [];
+        let activeMediaIndex = 0;
+        let mediaLoadNumber = 0;
+        let currentMediaFolderUrl = '';
+
+        function renderMediaItem() {
+            const stage = document.getElementById("media-stage");
+            const caption = document.getElementById("media-caption");
+            const counter = document.getElementById("media-counter");
+            const previousButton = document.getElementById("media-prev");
+            const nextButton = document.getElementById("media-next");
+
+            stage.replaceChildren();
+
+            if (activeMediaItems.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "media-placeholder";
+                empty.textContent = "No media items added yet.";
+                stage.appendChild(empty);
+
+                caption.textContent = "";
+                counter.textContent = "0 / 0";
+                previousButton.disabled = true;
+                nextButton.disabled = true;
+                return;
+            }
+
+            const item = activeMediaItems[activeMediaIndex];
+
+            const frame = document.createElement('iframe');
+            frame.className = 'media-frame';
+            frame.src = item.previewUrl;
+            frame.title = item.title || 'Drive media preview';
+            frame.allow = 'autoplay; encrypted-media';
+            frame.allowFullscreen = true;
+            stage.appendChild(frame);
+            caption.textContent = item.caption || item.title || "";
+            counter.textContent =
+                `${activeMediaIndex + 1} / ${activeMediaItems.length}`;
+
+            const hasMultiple = activeMediaItems.length > 1;
+            previousButton.disabled = !hasMultiple;
+            nextButton.disabled = !hasMultiple;
+            }
+
+            function moveMedia(direction) {
+                if (activeMediaItems.length < 2) {
+                    return;
+                }
+
+                activeMediaIndex =
+                    (activeMediaIndex + direction + activeMediaItems.length)
+                    % activeMediaItems.length;
+
+                renderMediaItem();
+            }
+
+            document.getElementById("media-prev").addEventListener("click", function () {
+                moveMedia(-1);
+            });
+
+            document.getElementById("media-next").addEventListener("click", function () {
+                moveMedia(1);
+            });
+
+            // Swipe/drag navigation. Skip this for videos so it doesn't interfere
+            // with the video player's controls.
+            let swipeStartX = null;
+
+            document.getElementById("media-stage").addEventListener("pointerdown", function (event) {
+                const currentItem = activeMediaItems[activeMediaIndex];
+
+                if (currentItem && currentItem.type !== "video") {
+                    swipeStartX = event.clientX;
+                }
+            });
+
+            document.getElementById("media-stage").addEventListener("pointerup", function (event) {
+                if (swipeStartX === null) {
+                    return;
+                }
+
+                const distance = event.clientX - swipeStartX;
+                swipeStartX = null;
+
+                if (Math.abs(distance) > 50) {
+                    moveMedia(distance < 0 ? 1 : -1);
+                }
+            });
+        async function listDriveMedia(folderUrlString) {
+            const folderUrl = new URL(folderUrlString);
+
+            const folderMatch = folderUrl.pathname.match(/\/folders\/([^/]+)/);
+            const folderId = folderMatch
+                ? folderMatch[1]
+                : folderUrl.searchParams.get("id");
+
+            if (!folderId) {
+                throw new Error("Could not find a folder ID in this entry's Drive link.");
+            }
+
+            // Some Drive sharing links include a resource key.
+            const resourceKey =
+                folderUrl.searchParams.get("resourcekey") ||
+                folderUrl.searchParams.get("resourceKey");
+
+            let pageToken = "";
+            const files = [];
+
+            do {
+                const params = new URLSearchParams({
+                    q: `'${folderId}' in parents and trashed = false`,
+                    pageSize: "1000",
+                    orderBy: "name",
+                    fields: "nextPageToken,files(id,name,mimeType,thumbnailLink,webViewLink,resourceKey)",
+                    key: driveApiKey,
+                    supportsAllDrives: "true",
+                    includeItemsFromAllDrives: "true"
+                });
+
+                if (pageToken) {
+                    params.set("pageToken", pageToken);
+                }
+
+                const headers = resourceKey
+                    ? { "X-Goog-Drive-Resource-Keys": `${folderId}/${resourceKey}` }
+                    : {};
+
+                const response = await fetch(
+                    `https://www.googleapis.com/drive/v3/files?${params}`,
+                    { headers }
+                );
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Drive API error (${response.status}): ${errorText}`);
+                }
+
+                const result = await response.json();
+                files.push(...(result.files || []));
+                pageToken = result.nextPageToken || "";
+            } while (pageToken);
+
+            return files
+                .filter(file =>
+                    file.mimeType &&
+                    (file.mimeType.startsWith("image/") ||
+                     file.mimeType.startsWith("video/"))
+                )
+                .map(file => ({
+                    id: file.id,
+                    title: file.name,
+                    type: file.mimeType.startsWith("video/") ? "video" : "image",
+                    src: file.thumbnailLink || "",
+                    previewUrl: `https://drive.google.com/file/d/${encodeURIComponent(file.id)}/preview`,
+                    fileUrl: file.webViewLink ||
+                        `https://drive.google.com/file/d/${encodeURIComponent(file.id)}/view`
+                }));
+        }
+        async function loadEntryMedia(entry) {
+            const thisLoad = ++mediaLoadNumber;
+            const stage = document.getElementById("media-stage");
+
+            activeMediaItems = [];
+            activeMediaIndex = 0;
+            currentMediaFolderUrl = entry.media || "";
+
+            stage.textContent = "Loading media…";
+            renderMediaItem();
+
+            if (!currentMediaFolderUrl) {
+                stage.textContent = "No Drive folder link is set for this entry.";
+                renderMediaItem();
+                return;
+            }
+
+            try {
+                const files = await listDriveMedia(currentMediaFolderUrl);
+
+                // Ignore an earlier request if the user opened another entry meanwhile.
+                if (thisLoad !== mediaLoadNumber) return;
+
+                activeMediaItems = files;
+                activeMediaIndex = 0;
+
+                if (files.length === 0) {
+                    stage.textContent = "No viewable photos or videos found in this folder.";
+                }
+
+                renderMediaItem();
+            } catch (error) {
+                if (thisLoad !== mediaLoadNumber) return;
+
+                console.error("Could not load Drive media:", error);
+                stage.textContent =
+                    "Could not load this folder’s media. Check the folder access and browser Console.";
+                renderMediaItem();
+            }
+        }
+        window.showEntry = function (entryId) {
+            const entry = entriesById[entryId];
+            if (!entry) {
+                return;
+            }
+
+            document.body.classList.add("expanded");
+            document.getElementById("overview").hidden = true;
+            document.getElementById("details").hidden = false;
+
+            document.getElementById("detail-name").textContent = entry.name || "";
+            document.getElementById("detail-date").textContent = entry.date || "";
+            document.getElementById("detail-abstract").textContent =
+                entry.abstract || "";
+            document.getElementById("detail-memo").textContent = entry.memo || "";
+
+            const mediaLink = document.getElementById("media-link");
+            loadEntryMedia(entry);
+            mediaLink.href = entry.media || "#";
+            mediaLink.textContent = "Open media folder in Google Drive";
+
+            refreshMap(entryId);
+        };
+
+        window.showOverview = function () {
+            document.body.classList.remove("expanded");
+            document.getElementById("details").hidden = true;
+            document.getElementById("overview").hidden = false;
+
+            refreshMap(null);
+        };
+
+        const categoryFilter = document.getElementById("category-filter");
+        const categories = [...new Set(
+            entries.map(entry => entry.category || "Uncategorized")
+        )].sort((a, b) => a.localeCompare(b));
+
+        const allOption = document.createElement("option");
+        allOption.value = "__all__";
+        allOption.textContent = "All categories";
+        categoryFilter.appendChild(allOption);
+
+        for (const category of categories) {
+            const option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        }
+
+        categoryFilter.addEventListener("change", renderSidebar);
+
+        // One handler supports sidebar entries and marker pop-up buttons.
+        document.addEventListener("click", function (event) {
+            const target = event.target;
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            const button = target.closest("[data-entry-id]");
+            if (button) {
+                window.showEntry(button.dataset.entryId);
+            }
+        });
+
+        // Populate the lists when the page loads.
+        renderSidebar();
+    })();
+    
+</script>
+</html>
